@@ -1,9 +1,9 @@
-import TrackComponent from "@/components/track";
+import PlayerArea from "@/components/playerArea";
 
 export default function DJTool() {
     return (
-        <>
-            <TrackComponent></TrackComponent>
-        </>
+        <div className="w-screen h-screen">
+            <PlayerArea/>
+        </div>
     );
 }
