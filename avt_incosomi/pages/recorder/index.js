@@ -1,4 +1,4 @@
-import PlayerArea from "@/pages/recorder/playerArea";
+import PlayerArea from "@/components/playerArea";
 
 export default function App(){
     return(

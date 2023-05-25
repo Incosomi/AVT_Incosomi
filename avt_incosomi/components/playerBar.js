@@ -1,4 +1,5 @@
 import {useEffect, useRef, useState} from "react";
+import TrackComponent from "@/components/track";
 
 let animationController;
 export default function PlayerBar(props){
@@ -65,17 +66,21 @@ export default function PlayerBar(props){
     };
 
     return(
-        <div className="btn-group bg-cyan-800 rounded-2xl h-14 my-1">
-            <canvas className="rounded-l-2xl" ref={canvasRef} width={300}/>
-            <label className="btn btn-info h-auto">
-                <input type={"file"}
-                       onChange={(e) => handleSourceFileChange(e.target.files)}
-                />
-                Import
-            </label>
-            <audio controls ref={audioRef} onPlay={handleAudioPlay} src={fileSource}/>
-            <button className="btn btn-success h-auto" onClick={handlePlayPause}>Play/Pause</button>
-            <button className="btn btn-error rounded-r-full h-auto" onClick={handleDelete}>Delete</button>
+        <div className="flex bg-info/30 w-max">
+            <div className="btn-group bg-cyan-800 rounded-2xl h-14 my-1">
+                <canvas className="rounded-l-2xl" ref={canvasRef} width={300}/>
+                <label className="btn btn-info h-auto">
+                    <input type={"file"}
+                           style={{display:'none'}}
+                           onChange={(e) => handleSourceFileChange(e.target.files)}
+                    />
+                    Import
+                </label>
+                <audio controls style={{display:'none'}} ref={audioRef} onPlay={handleAudioPlay} src={fileSource}/>
+                <button className="btn btn-success h-auto" onClick={handlePlayPause}>Play/Pause</button>
+                <button className="btn btn-error rounded-r-full h-auto" onClick={handleDelete}>Delete</button>
+            </div>
+            <TrackComponent/>
         </div>
     );
 }

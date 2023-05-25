@@ -1,4 +1,4 @@
-import PlayerBar from "@/pages/recorder/playerBar";
+import PlayerBar from "@/components/playerBar";
 import {useState} from "react";
 
 export default function PlayerArea(){
@@ -22,7 +22,7 @@ export default function PlayerArea(){
             {barIds.map(barId => (
                 <PlayerBar key={barId} deleteHandler={() => handleDeletePlayerBar(barId)}/>
             ))}
-            <button className="btn my-1 btn-secondary rounded-full" onClick={handleAddPlayerBar}>+</button>
+            <button className="btn my-1 btn-success rounded-full" onClick={handleAddPlayerBar}>+</button>
         </div>
     );
 }
