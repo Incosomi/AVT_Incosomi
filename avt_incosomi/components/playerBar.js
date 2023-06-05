@@ -1,35 +1,44 @@
-import {useEffect, useRef, useState} from "react";
-import TrackComponent from "@/components/track";
+import { useEffect, useRef, useState } from "react";
+import FreqKnobsComponent from "@/components/freqKnobs";
+import { FolderPlusIcon, PauseIcon, PlayIcon, TrashIcon } from "@heroicons/react/24/solid";
 
 let animationController;
-export default function PlayerBar(props){
-
+export default function PlayerBar(props) {
     const [fileSource, setFileSource] = useState(null);
     const audioRef = useRef();
     const canvasRef = useRef();
     const audioSource = useRef();
     const analyzer = useRef();
 
+    const THISDivRef = useRef(null);
+    const [knobSize, setKnobSize] = useState(null); // Use useState to track knobSize
+
+    const [isPlaying, setIsPlaying] = useState(false);
+
     useEffect(() => {
-        canvasRef.current.style.height = '100%';
+        canvasRef.current.style.height = "100%";
         canvasRef.current.height = canvasRef.current.offsetHeight;
-    },[])
+
+        setKnobSize(THISDivRef.current ? THISDivRef.current.offsetHeight : null); // Update knobSize when THISDivRef changes
+    }, []);
 
     const handleSourceFileChange = (files) => {
         setFileSource(window.URL.createObjectURL(files[0]));
-    }
+    };
 
     const handlePlayPause = () => {
-        if(audioRef.current.paused){
+        if (audioRef.current.paused) {
             audioRef.current.play();
-        }else{
+            setIsPlaying(true);
+        } else {
             audioRef.current.pause();
+            setIsPlaying(false);
         }
-    }
+    };
 
     const handleAudioPlay = () => {
         let audioContext = new AudioContext();
-        if(!audioSource.current){
+        if (!audioSource.current) {
             audioSource.current = audioContext.createMediaElementSource(audioRef.current);
             analyzer.current = audioContext.createAnalyser();
             audioSource.current.connect(analyzer.current);
@@ -39,9 +48,8 @@ export default function PlayerBar(props){
     };
 
     const handleDelete = () => {
-
         props.deleteHandler();
-    }
+    };
 
     const visualizeData = () => {
         animationController = window.requestAnimationFrame(visualizeData);
@@ -51,36 +59,38 @@ export default function PlayerBar(props){
         analyzer.current.getByteFrequencyData(songData);
         const bar_width = 3;
         let start = 0;
-        const ctx = canvasRef.current.getContext('2d');
+        const ctx = canvasRef.current.getContext("2d");
         ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-        for(let i=0; i<songData.length; i++){
-            start = i*4;
-            let gradient =
-                ctx.createLinearGradient(0,0,canvasRef.current.width, canvasRef.current.height);
-            gradient.addColorStop(0.2, '#2392f5');
-            gradient.addColorStop(0.5, '#fe0095');
-            gradient.addColorStop(1.0, '#e500fe');
+        for (let i = 0; i < songData.length; i++) {
+            start = i * 4;
+            let gradient = ctx.createLinearGradient(0, 0, canvasRef.current.width, canvasRef.current.height);
+            gradient.addColorStop(0.2, "#2392f5");
+            gradient.addColorStop(0.5, "#fe0095");
+            gradient.addColorStop(1.0, "#e500fe");
             ctx.fillStyle = gradient;
-            ctx.fillRect(start, canvasRef.current.height, bar_width, -songData[i]/3);
+            ctx.fillRect(start, canvasRef.current.height, bar_width, -songData[i] / 3);
         }
     };
 
-    return(
-        <div className="flex bg-info/30 w-max">
-            <div className="btn-group bg-cyan-800 rounded-2xl h-14 my-1">
-                <canvas className="rounded-l-2xl" ref={canvasRef} width={300}/>
-                <label className="btn btn-info h-auto">
-                    <input type={"file"}
-                           style={{display:'none'}}
-                           onChange={(e) => handleSourceFileChange(e.target.files)}
-                    />
-                    Import
+    return (
+        <div className="my-3 flex w-max bg-info/30">
+            <div ref={THISDivRef} className="h-12 rounded-2xl bg-cyan-800 btn-group">
+                <canvas className="rounded-l-2xl" ref={canvasRef} width={300} />
+                <label className="h-auto btn btn-info">
+                    <input type={"file"} style={{ display: "none" }} onChange={(e) => handleSourceFileChange(e.target.files)} />
+                    <FolderPlusIcon className="h-6 w-6" />
                 </label>
-                <audio controls style={{display:'none'}} ref={audioRef} onPlay={handleAudioPlay} src={fileSource}/>
-                <button className="btn btn-success h-auto" onClick={handlePlayPause}>Play/Pause</button>
-                <button className="btn btn-error rounded-r-full h-auto" onClick={handleDelete}>Delete</button>
+                <audio controls style={{ display: "none" }} ref={audioRef} onPlay={handleAudioPlay} src={fileSource} />
+                <button className="h-auto btn btn-success" onClick={handlePlayPause}>
+                    {isPlaying ? <PauseIcon className="h-6 w-6" /> : <PlayIcon className="h-6 w-6" />}
+                </button>
+                <button className="h-auto rounded-r-full btn btn-error" onClick={handleDelete}>
+                    <TrashIcon className="h-6 w-6" />
+                </button>
             </div>
-            <TrackComponent/>
+            <div className="divider divider-horizontal" />
+            <FreqKnobsComponent knobSize={knobSize} className="" />
+            <div className="divider divider-horizontal" />
         </div>
     );
 }
