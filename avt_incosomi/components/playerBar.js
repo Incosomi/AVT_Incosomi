@@ -1,9 +1,10 @@
-import {useEffect, useRef, useState} from "react";
+import { useEffect, useRef, useState } from "react";
 import FreqKnobsComponent from "@/components/freqKnobs";
-import {FolderPlusIcon, PauseIcon, PlayIcon, TrashIcon} from "@heroicons/react/24/solid";
+import { FolderPlusIcon, PauseIcon, PlayIcon, TrashIcon } from "@heroicons/react/24/solid";
 import KnobComponent from "@/components/knob";
 
 let animationController;
+
 export default function PlayerBar(props) {
     const [fileSource, setFileSource] = useState(null);
     const audioRef = useRef();
@@ -73,56 +74,44 @@ export default function PlayerBar(props) {
         }
     };
 
-
     return (
         <tr id="THISDivRef" className="bg-info/30">
             <td>
-                <canvas id="waveform" className="rounded-l-2xl" ref={canvasRef} width={300} height={53}/>
+                <canvas id="waveform" className="rounded-l-2xl border-r border-slate-600" ref={canvasRef} width={300} height={53} />
             </td>
             <td>
                 <label id="import" className="h-auto btn btn-info">
-                    <input type={"file"} style={{display: "none"}}
-                           onChange={(e) => handleSourceFileChange(e.target.files)}/>
-                    <FolderPlusIcon className="h-6 w-6"/>
+                    <input
+                        type="file"
+                        style={{ display: "none" }}
+                        onChange={(e) => handleSourceFileChange(e.target.files)}
+                    />
+                    <FolderPlusIcon className="h-6 w-6" />
                 </label>
             </td>
             <td>
-                <audio controls style={{display: "none"}} ref={audioRef} onPlay={handleAudioPlay} src={fileSource}/>
-                <button id="play" className="h-auto btn btn-success" onClick={handlePlayPause}>
-                    {isPlaying ? <PauseIcon className="h-6 w-6"/> : <PlayIcon className="h-6 w-6"/>}
+                <audio controls style={{ display: "none" }} ref={audioRef} onPlay={handleAudioPlay} src={fileSource} />
+                <button id="play" className={`h-auto btn ${fileSource ? "btn-success" : "btn-disabled"}`} onClick={handlePlayPause} disabled={fileSource}>
+                    {isPlaying ? <PauseIcon className="h-6 w-6" /> : <PlayIcon className="h-6 w-6" />}
                 </button>
             </td>
             <td>
-                <button id="delete" className="h-auto btn btn-error" onClick={handleDelete}>
-                    <TrashIcon className="h-6 w-6"/>
+                <button id="delete" className={`h-auto btn ${fileSource ? "btn-error" : "btn-disabled"}`} onClick={handleDelete}>
+                    <TrashIcon className="h-6 w-6" />
                 </button>
             </td>
-            <td className="border-l border-slate-600"><KnobComponent id="high" knobSize={48} text="TREBBLE"></KnobComponent></td>
-            <td><KnobComponent id="mid" knobSize={48} text="MID"></KnobComponent></td>
-            <td className="border-r border-slate-600"><KnobComponent id="low" knobSize={48} text="BASS"></KnobComponent></td>
-            <td><KnobComponent id="vol" knobSize={48} text="VOL"></KnobComponent></td>
-
+            <td className="border-l border-slate-600">
+                <KnobComponent id="high" knobSize={48} text="TREBBLE" />
+            </td>
+            <td>
+                <KnobComponent id="mid" knobSize={48} text="MID" />
+            </td>
+            <td className="border-r border-slate-600">
+                <KnobComponent id="low" knobSize={48} text="BASS" />
+            </td>
+            <td className="border-r border-slate-600">
+                <KnobComponent id="vol" knobSize={48} text="VOL" />
+            </td>
         </tr>
     );
-
-
-    /* return (
-         <div className="my-3 flex w-max bg-info/30">
-             <div ref={THISDivRef} className="h-12 rounded-2xl bg-cyan-800 btn-group">
-                 <canvas id="waveform" className="rounded-l-2xl" ref={canvasRef} width={300} />
-                 <label  id="import" className="h-auto btn btn-info">
-                     <input type={"file"} style={{ display: "none" }} onChange={(e) => handleSourceFileChange(e.target.files)} />
-                     <FolderPlusIcon className="h-6 w-6" />
-                 </label>
-                 <audio controls style={{ display: "none" }} ref={audioRef} onPlay={handleAudioPlay} src={fileSource} />
-                 <button  id="play"  className="h-auto btn btn-success" onClick={handlePlayPause}>
-                     {isPlaying ? <PauseIcon className="h-6 w-6" /> : <PlayIcon className="h-6 w-6" />}
-                 </button>
-                 <button  id="delete"  className="h-auto rounded-r-full btn btn-error" onClick={handleDelete}>
-                     <TrashIcon className="h-6 w-6" />
-                 </button>
-             </div>
-             <FreqKnobsComponent knobSize={knobSize} className="" />
-         </div>
-     );*/
 }
