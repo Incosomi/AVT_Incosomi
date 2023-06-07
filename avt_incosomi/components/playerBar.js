@@ -77,7 +77,7 @@ export default function PlayerBar(props) {
     return (
         <tr id="THISDivRef" className="bg-info/30">
             <td>
-                <canvas id="waveform" className="h-max rounded-l-2xl" ref={canvasRef} width={300}/>
+                <canvas id="waveform" className="rounded-l-2xl" ref={canvasRef} width={300} height={53}/>
             </td>
             <td>
                 <label id="import" className="h-auto btn btn-info">
@@ -97,10 +97,10 @@ export default function PlayerBar(props) {
                     <TrashIcon className="h-6 w-6"/>
                 </button>
             </td>
-            <td><KnobComponent id="high" knobSize={48} text="TREBBLE"></KnobComponent></td>
+            <td className="border-l border-slate-600"><KnobComponent id="high" knobSize={48} text="TREBBLE"></KnobComponent></td>
             <td><KnobComponent id="mid" knobSize={48} text="MID"></KnobComponent></td>
-            <td><KnobComponent id="low" knobSize={48} text="BASS"></KnobComponent></td>
-
+            <td className="border-r border-slate-600"><KnobComponent id="low" knobSize={48} text="BASS"></KnobComponent></td>
+            <td><KnobComponent id="vol" knobSize={48} text="VOL"></KnobComponent></td>
 
         </tr>
     );

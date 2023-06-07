@@ -16,7 +16,7 @@ export default function PlayerArea() {
     };
 
     return (<div id="PlayerArea">
-        <table className="table-auto">
+        <table className="table-auto border-collapse border border-slate-500">
             <thead>
             <tr>
                 <th>Waveform</th>
@@ -26,6 +26,7 @@ export default function PlayerArea() {
                 <th>High</th>
                 <th>Mid</th>
                 <th>Low</th>
+                <th>Vol</th>
             </tr>
             </thead>
             <tbody>
@@ -33,6 +34,7 @@ export default function PlayerArea() {
                 <PlayerBar key={barId} id={barId} deleteHandler={() => handleDeletePlayerBar(barId)}/>))}
             </tbody>
         </table>
+
         <button className="my-1 rounded-full btn btn-success" onClick={handleAddPlayerBar}>
             <PlusSmallIcon className="h-6 w-6"/>
         </button>
