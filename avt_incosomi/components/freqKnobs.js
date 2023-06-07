@@ -2,10 +2,10 @@ import KnobComponent from "@/components/knob";
 
 export default function FreqKnobsComponent({knobSize}){
     return (
-        <div className="my-auto flex">
-            <KnobComponent knobSize={knobSize} text="TREBBLE"></KnobComponent>
-            <KnobComponent knobSize={knobSize} text="MID"></KnobComponent>
-            <KnobComponent knobSize={knobSize} text="BASS"></KnobComponent>
+        <div className="">
+            <td><KnobComponent id="high" knobSize={knobSize} text="TREBBLE"></KnobComponent></td>
+            <td><KnobComponent id="mid" knobSize={knobSize} text="MID"></KnobComponent></td>
+            <td><KnobComponent id="low" knobSize={knobSize} text="BASS"></KnobComponent></td>
         </div>
     );
 }
