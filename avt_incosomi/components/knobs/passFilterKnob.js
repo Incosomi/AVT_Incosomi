@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {Knob} from "primereact/knob";
 
-export default function PassFilterKnob({text, onChangeCallback}){
+export default function PassFilterKnob({text, knobSize, onChangeCallback}){
     const [value, setValue] = useState(50);
     const [frequency, setFrequency] = useState(0);
 
@@ -15,7 +15,7 @@ export default function PassFilterKnob({text, onChangeCallback}){
     return (
         <div className="mx-3 text-center">
             <h5 className="font-bold ">{text}</h5>
-            <Knob size={32} className="" value={value} onChange={(e) => handleChange(e)}/>
+            <Knob size={knobSize} className="" value={value} onChange={(e) => handleChange(e)}/>
         </div>
     );
 }

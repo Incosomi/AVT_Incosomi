@@ -1,7 +1,7 @@
 import {useState} from "react";
 import {Knob} from "primereact/knob";
 
-export default function ReverbKnob({onChangeCallback}){
+export default function ReverbKnob({knobSize, onChangeCallback}){
     const [value, setValue] = useState(50);
 
     const handleChange = (e) => {
@@ -14,7 +14,7 @@ export default function ReverbKnob({onChangeCallback}){
     return (
         <div className="mx-3 text-center">
             <h5 className="font-bold ">Reverb</h5>
-            <Knob size={32} className="" value={value} onChange={(e) => handleChange(e)}/>
+            <Knob size={knobSize} className="" value={value} onChange={(e) => handleChange(e)}/>
         </div>
     );
 }

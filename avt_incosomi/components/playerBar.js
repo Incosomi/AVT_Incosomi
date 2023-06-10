@@ -1,16 +1,22 @@
 import { useEffect, useRef, useState } from "react";
-import FreqKnobsComponent from "@/components/freqKnobs";
 import { FolderPlusIcon, PauseIcon, PlayIcon, TrashIcon } from "@heroicons/react/24/solid";
-import KnobComponent from "@/components/knob";
+import VolumeKnob from "@/components/knobs/volumeKnob";
+import PassFilterKnob from "@/components/knobs/passFilterKnob";
 
 let animationController;
 
 export default function PlayerBar(props) {
     const [fileSource, setFileSource] = useState(null);
     const audioRef = useRef();
-    const canvasRef = useRef();
+
     const audioSource = useRef();
+    const volumeNode = useRef();
     const analyzer = useRef();
+    const lowPassFilterNode = useRef();
+    const highPassFilterNode = useRef();
+    const convolverNode = useRef();
+
+    const canvasRef = useRef();
 
     const THISDivRef = useRef(null);
     const [knobSize, setKnobSize] = useState(null); // Use useState to track knobSize
@@ -23,6 +29,10 @@ export default function PlayerBar(props) {
 
         setKnobSize(THISDivRef.current ? THISDivRef.current.offsetHeight : null); // Update knobSize when THISDivRef changes
     }, []);
+
+    const handleDelete = () => {
+        props.deleteHandler();
+    };
 
     const handleSourceFileChange = (files) => {
         setFileSource(window.URL.createObjectURL(files[0]));
@@ -38,20 +48,82 @@ export default function PlayerBar(props) {
         }
     };
 
+
+
     const handleAudioPlay = () => {
-        let audioContext = new AudioContext();
+        let audioCtx = new AudioContext();
         if (!audioSource.current) {
-            audioSource.current = audioContext.createMediaElementSource(audioRef.current);
-            analyzer.current = audioContext.createAnalyser();
-            audioSource.current.connect(analyzer.current);
-            analyzer.current.connect(audioContext.destination);
+            createNodes(audioCtx);
+
+            setUpVolumeNode();
+
+            setUpLowPassFilterNode();
+
+            setUpHighPassFilterNode();
+
+            connectNodes(audioCtx);
         }
         visualizeData();
     };
 
-    const handleDelete = () => {
-        props.deleteHandler();
-    };
+    const createNodes = (audioContext) => {
+        audioSource.current = audioContext.createMediaElementSource(audioRef.current);
+        volumeNode.current = audioContext.createGain();
+        analyzer.current = audioContext.createAnalyser();
+        lowPassFilterNode.current = audioContext.createBiquadFilter();
+        highPassFilterNode.current = audioContext.createBiquadFilter();
+        let impulse = calcImpulseResponse(1, 2, audioContext);
+        convolverNode.current = new ConvolverNode(audioContext, {buffer:impulse});
+    }
+
+    const calcImpulseResponse = (duration, decay, audioCtx) => {
+        let length = audioCtx.sampleRate * duration;
+        let impulse = audioCtx.createBuffer(1, length, audioCtx.sampleRate);
+        let IR = impulse.getChannelData(0);
+        for(let i=0; i<length; i++)IR[i] = (2*Math.random()-1)*Math.pow(1-i/length, decay);
+        return impulse;
+    }
+
+    const setUpVolumeNode = () => {
+        volumeNode.current.gain.value = 1;
+    }
+
+    const changeVolumeValue = (newVolume) => {
+        if(volumeNode.current == null) return;
+        volumeNode.current.gain.value = newVolume;
+    }
+
+    const setUpLowPassFilterNode = () => {
+        lowPassFilterNode.current.type = "lowpass";
+        lowPassFilterNode.current.frequency.value = 5000;
+    }
+
+    const changeLowPassFrequency = (newFrequency) => {
+        if(lowPassFilterNode.current == null) return;
+        lowPassFilterNode.current.frequency.value = newFrequency;
+    }
+
+    const setUpHighPassFilterNode = () => {
+        highPassFilterNode.current.type = "highpass";
+        highPassFilterNode.current.frequency.value = 5000;
+    }
+
+    const changeHighPassFrequency = (newFrequency) => {
+        if(highPassFilterNode.current == null) return;
+        highPassFilterNode.current.frequency.value = newFrequency;
+    }
+
+    const connectNodes = (audioContext) => {
+        audioSource.current
+            .connect(volumeNode.current)
+            .connect(lowPassFilterNode.current)
+            .connect(highPassFilterNode.current)
+            .connect(analyzer.current)
+            .connect(convolverNode.current)
+            .connect(audioContext.destination);
+    }
+
+
 
     const visualizeData = () => {
         animationController = window.requestAnimationFrame(visualizeData);
@@ -90,8 +162,8 @@ export default function PlayerBar(props) {
                 </label>
             </td>
             <td>
-                <audio controls style={{ display: "none" }} ref={audioRef} onPlay={handleAudioPlay} src={fileSource} />
-                <button id="play" className={`h-auto btn ${fileSource ? "btn-success" : "btn-disabled"}`} onClick={handlePlayPause} disabled={fileSource}>
+                <audio controls style={{ display: "none" }} ref={audioRef} onPlay={handleAudioPlay} src={fileSource} onEnded={() => setIsPlaying(false)}/>
+                <button id="play" className={`h-auto btn ${fileSource ? "btn-success" : "btn-disabled"}`} onClick={handlePlayPause} >
                     {isPlaying ? <PauseIcon className="h-6 w-6" /> : <PlayIcon className="h-6 w-6" />}
                 </button>
             </td>
@@ -101,16 +173,15 @@ export default function PlayerBar(props) {
                 </button>
             </td>
             <td className="border-l border-slate-600">
-                <KnobComponent id="high" knobSize={48} text="TREBBLE" />
+                <PassFilterKnob knobSize={48} onChangeCallback={changeHighPassFrequency}/>
             </td>
             <td>
-                <KnobComponent id="mid" knobSize={48} text="MID" />
             </td>
             <td className="border-r border-slate-600">
-                <KnobComponent id="low" knobSize={48} text="BASS" />
+                <PassFilterKnob knobSize={48} onChangeCallback={changeLowPassFrequency}/>
             </td>
             <td className="border-r border-slate-600">
-                <KnobComponent id="vol" knobSize={48} text="VOL" />
+                <VolumeKnob knobSize={48} onChangeCallback={changeVolumeValue} />
             </td>
         </tr>
     );
