@@ -1,8 +1,10 @@
 import PlayerArea from "@/components/playerArea";
+import 'primereact/resources/themes/lara-light-indigo/theme.css';
+import 'primereact/resources/primereact.css';
 
 export default function DJTool() {
     return (
-        <div className="w-screen h-screen">
+        <div className="bg-info/30 w-screen h-screen">
             <PlayerArea/>
         </div>
     );
