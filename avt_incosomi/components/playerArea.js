@@ -1,6 +1,7 @@
 import PlayerBar from "@/components/playerBar";
-import {useState, useEffect, useRef} from "react";
+import {useState} from "react";
 import {PlusSmallIcon} from "@heroicons/react/24/solid";
+
 
 export default function PlayerArea() {
     const [barIds, setBarIds] = useState([]);
@@ -15,28 +16,28 @@ export default function PlayerArea() {
         setBarIds(barIds.filter((id) => id !== barId));
     };
 
-    return (<div id="PlayerArea">
-        <table className="table-auto border-collapse border border-slate-500">
-            <thead>
-            <tr>
-                <th>Waveform</th>
-                <th>Import</th>
-                <th>Play</th>
-                <th>Delete</th>
-                <th>High</th>
-                <th>Mid</th>
-                <th>Low</th>
-                <th>Vol</th>
-            </tr>
-            </thead>
-            <tbody>
+    return (
+        <div id="PlayerArea" className="grid grid-rows-1 gap-2 w-3/6">
+            <div className="grid grid-cols-9 text-center">
+                <div className="col-span-1"></div>
+                <div className="col-span-1">Vol</div>
+                <div className="col-span-1">High</div>
+                <div className="col-span-1">Low</div>
+                <div className="col-span-5">Waveform</div>
+            </div>
             {barIds.map((barId) => (
-                <PlayerBar key={barId} id={barId} deleteHandler={() => handleDeletePlayerBar(barId)}/>))}
-            </tbody>
-        </table>
-
-        <button className="my-1 rounded-full btn btn-success" onClick={handleAddPlayerBar}>
-            <PlusSmallIcon className="h-6 w-6"/>
-        </button>
-    </div>);
+                <PlayerBar
+                    key={barId}
+                    id={barId}
+                    deleteHandler={() => handleDeletePlayerBar(barId)}
+                />
+            ))}
+            <button
+                className="my-1 rounded-full btn btn-success"
+                onClick={handleAddPlayerBar}
+            >
+                <PlusSmallIcon className="h-6 w-6" />
+            </button>
+        </div>
+    );
 }

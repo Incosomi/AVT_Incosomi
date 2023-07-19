@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { FolderPlusIcon, PauseIcon, PlayIcon, TrashIcon } from "@heroicons/react/24/solid";
+import {
+    FolderPlusIcon,
+    SpeakerWaveIcon,
+    SpeakerXMarkIcon,
+    TrashIcon
+} from "@heroicons/react/24/solid";
 import VolumeKnob from "@/components/knobs/volumeKnob";
 import PassFilterKnob from "@/components/knobs/passFilterKnob";
 
@@ -147,42 +152,82 @@ export default function PlayerBar(props) {
     };
 
     return (
-        <tr id="THISDivRef" className="bg-info/30">
-            <td>
-                <canvas id="waveform" className="rounded-l-2xl border-r border-slate-600" ref={canvasRef} width={300} height={53} />
-            </td>
-            <td>
-                <label id="import" className="h-auto btn btn-info">
-                    <input
-                        type="file"
+        <div className="border border-slate-600 py-2 rounded-md mb-2 grid grid-cols-9">
+            <div className="col-span-1 flex justify-center">
+                <div className="flex flex-col gap-2">
+                    <label
+                        id="import"
+                        className="h-auto btn btn-info"
+                        htmlFor={`file-input-${props.id}`}
+                    >
+                        <input
+                            id={`file-input-${props.id}`}
+                            type="file"
+                            style={{ display: "none" }}
+                            onChange={(e) => handleSourceFileChange(e.target.files)}
+                        />
+                        <FolderPlusIcon className="h-6 w-6" />
+                    </label>
+                    <button
+                        id="delete"
+                        className={`h-auto btn ${fileSource ? "btn-error" : "btn-disabled"}`}
+                        onClick={handleDelete}
+                    >
+                        <TrashIcon className="h-6 w-6" />
+                    </button>
+
+                </div>
+
+            </div>
+            <div className="col-span-1 flex flex-col justify-center items-center gap-2">
+                <VolumeKnob
+                    knobSize={knobSize || 48}
+                    onChangeCallback={changeVolumeValue}
+                />
+                <div>
+                    <audio
+                        controls
                         style={{ display: "none" }}
-                        onChange={(e) => handleSourceFileChange(e.target.files)}
+                        ref={audioRef}
+                        onPlay={handleAudioPlay}
+                        src={fileSource}
+                        onEnded={() => setIsPlaying(false)}
                     />
-                    <FolderPlusIcon className="h-6 w-6" />
-                </label>
-            </td>
-            <td>
-                <audio controls style={{ display: "none" }} ref={audioRef} onPlay={handleAudioPlay} src={fileSource} onEnded={() => setIsPlaying(false)}/>
-                <button id="play" className={`h-auto btn ${fileSource ? "btn-success" : "btn-disabled"}`} onClick={handlePlayPause} >
-                    {isPlaying ? <PauseIcon className="h-6 w-6" /> : <PlayIcon className="h-6 w-6" />}
-                </button>
-            </td>
-            <td>
-                <button id="delete" className={`h-auto btn ${fileSource ? "btn-error" : "btn-disabled"}`} onClick={handleDelete}>
-                    <TrashIcon className="h-6 w-6" />
-                </button>
-            </td>
-            <td className="border-l border-slate-600">
-                <PassFilterKnob knobSize={48} onChangeCallback={changeHighPassFrequency}/>
-            </td>
-            <td>
-            </td>
-            <td className="border-r border-slate-600">
-                <PassFilterKnob knobSize={48} onChangeCallback={changeLowPassFrequency}/>
-            </td>
-            <td className="border-r border-slate-600">
-                <VolumeKnob knobSize={48} onChangeCallback={changeVolumeValue} />
-            </td>
-        </tr>
+                    <button
+                        id="play"
+                        className={`h-auto btn btn-info`}
+                        onClick={handlePlayPause}
+                    >
+                        {isPlaying ? <SpeakerXMarkIcon className="h-6 w-6" /> : <SpeakerWaveIcon className="h-6 w-6" />}
+                    </button>
+                </div>
+            </div>
+            <div className="col-span-1 flex justify-center">
+                <PassFilterKnob
+                    knobSize={knobSize || 48}
+                    onChangeCallback={changeHighPassFrequency}
+                />
+            </div>
+            <div className="col-span-1 flex justify-center">
+                <PassFilterKnob
+                    knobSize={knobSize || 48}
+                    onChangeCallback={changeLowPassFrequency}
+                />
+            </div>
+            <div className="col-span-5 flex justify-center">
+                <div>
+                    <canvas
+                        id="waveform"
+                        className="rounded-l-2xl"
+                        ref={canvasRef}
+                        width={300}
+                        height={53}
+                    />
+
+                </div>
+
+            </div>
+
+        </div>
     );
 }
