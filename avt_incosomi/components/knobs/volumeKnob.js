@@ -14,7 +14,6 @@ export default function VolumeKnob({knobSize, onChangeCallback}){
 
     return (
         <div className="mx-3 text-center">
-            <h5 className="font-bold ">Volume</h5>
             <Knob size={knobSize} className="" value={value} onChange={(e) => handleChange(e)}/>
         </div>
     );
