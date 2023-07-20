@@ -18,10 +18,10 @@ export default function PlayerArea() {
 
     return (
         <div id="PlayerArea" className="grid grid-rows-1 gap-2">
-            <div className="grid grid-cols-9 text-center font-bold">
+            <div className="grid grid-cols-9 rounded-md border border-4 border-secondary text-center font-bold py-1 mt-4">
                 <div className="col-span-1"></div>
                 <div className="col-span-1">Vol</div>
-                <div className="col-span-1">High</div>
+                <div className="col-span-1 ">High</div>
                 <div className="col-span-1">Low</div>
                 <div className="col-span-5">Waveform</div>
             </div>

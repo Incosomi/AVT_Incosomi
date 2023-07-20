@@ -152,7 +152,7 @@ export default function PlayerBar(props) {
     };
 
     return (
-        <div className="border border-slate-600 py-2 rounded-md mb-2 grid grid-cols-9">
+        <div className="border border-secondary border-2 py-2 rounded-md mb-2 grid grid-cols-9">
             <div className="col-span-1 flex justify-center">
                 <div className="flex flex-col gap-4">
                     <label
