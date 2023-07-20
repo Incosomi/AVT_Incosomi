@@ -6,6 +6,7 @@ export default function DJTool() {
     return (
         <div className="bg-info/30 w-screen h-screen">
             <PlayerArea/>
+
         </div>
     );
 }

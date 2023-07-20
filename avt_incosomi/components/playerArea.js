@@ -17,8 +17,8 @@ export default function PlayerArea() {
     };
 
     return (
-        <div id="PlayerArea" className="grid grid-rows-1 gap-2 w-3/6">
-            <div className="grid grid-cols-9 text-center">
+        <div id="PlayerArea" className="grid grid-rows-1 gap-2 w-1/3">
+            <div className="grid grid-cols-9 text-center font-bold">
                 <div className="col-span-1"></div>
                 <div className="col-span-1">Vol</div>
                 <div className="col-span-1">High</div>

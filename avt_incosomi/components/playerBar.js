@@ -154,7 +154,7 @@ export default function PlayerBar(props) {
     return (
         <div className="border border-slate-600 py-2 rounded-md mb-2 grid grid-cols-9">
             <div className="col-span-1 flex justify-center">
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-4">
                     <label
                         id="import"
                         className="h-auto btn btn-info"
@@ -179,28 +179,31 @@ export default function PlayerBar(props) {
                 </div>
 
             </div>
-            <div className="col-span-1 flex flex-col justify-center items-center gap-2">
-                <VolumeKnob
-                    knobSize={knobSize || 48}
-                    onChangeCallback={changeVolumeValue}
-                />
-                <div>
-                    <audio
-                        controls
-                        style={{ display: "none" }}
-                        ref={audioRef}
-                        onPlay={handleAudioPlay}
-                        src={fileSource}
-                        onEnded={() => setIsPlaying(false)}
+            <div className="col-span-1 justify-center ">
+                <div className="flex flex-col gap-4 items-center">
+                    <VolumeKnob
+                        knobSize={knobSize || 48}
+                        onChangeCallback={changeVolumeValue}
                     />
-                    <button
-                        id="play"
-                        className={`h-auto btn btn-info`}
-                        onClick={handlePlayPause}
-                    >
-                        {isPlaying ? <SpeakerXMarkIcon className="h-6 w-6" /> : <SpeakerWaveIcon className="h-6 w-6" />}
-                    </button>
+                    <div>
+                        <audio
+                            controls
+                            style={{ display: "none" }}
+                            ref={audioRef}
+                            onPlay={handleAudioPlay}
+                            src={fileSource}
+                            onEnded={() => setIsPlaying(false)}
+                        />
+                        <button
+                            id="play"
+                            className={`h-auto btn ${fileSource ? "btn-info" : "btn-disabled"}`}
+                            onClick={handlePlayPause}
+                        >
+                            {isPlaying ? <SpeakerXMarkIcon className="h-6 w-6" /> : <SpeakerWaveIcon className="h-6 w-6" />}
+                        </button>
+                    </div>
                 </div>
+
             </div>
             <div className="col-span-1 flex justify-center">
                 <PassFilterKnob
@@ -214,14 +217,32 @@ export default function PlayerBar(props) {
                     onChangeCallback={changeLowPassFrequency}
                 />
             </div>
-            <div className="col-span-5 flex justify-center">
-                <div>
+            <div className="col-span-5 flex justify-center flex-col">
+                <div className="flex justify-center">
                     <canvas
                         id="waveform"
                         className="rounded-l-2xl"
                         ref={canvasRef}
                         width={300}
                         height={53}
+                    />
+
+                </div>
+                <div className="flex justify-center">
+                    <PassFilterKnob
+                        knobSize={knobSize || 38}
+                        text={"Effect"}
+                        onChangeCallback={changeHighPassFrequency}
+                    />
+                    <PassFilterKnob
+                        knobSize={knobSize || 38}
+                        text={"Effect"}
+                        onChangeCallback={changeHighPassFrequency}
+                    />
+                    <PassFilterKnob
+                        knobSize={knobSize || 38}
+                        text={"Effect"}
+                        onChangeCallback={changeHighPassFrequency}
                     />
 
                 </div>
