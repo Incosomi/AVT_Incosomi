@@ -2,6 +2,3 @@
 @tailwind components;
 @tailwind utilities;
 
-th{
-    @apply border border-slate-600;
-}
