@@ -96,7 +96,7 @@ const WaveformCanvas = forwardRef(
         }
 
         return (
-            <canvas id="waveform" className="rounded-l-2xl border-r border-slate-600" ref={canvasRef} width={300} height={53} />
+                <canvas id="waveform" className="rounded-2xl border border-black bg-orange-400" ref={canvasRef} width={200} height={53} />
         );
     });
 
