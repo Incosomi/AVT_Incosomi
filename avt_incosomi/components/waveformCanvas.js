@@ -4,6 +4,9 @@ let animationController;
 
 const WaveformCanvas = forwardRef(
     function WaveformCanvas({isPlaying, getCurrentTime, getTimeOffSet, getDuration}, ref) {
+        const canvasBgColor = '#f5980a';
+        const waveformColor = '#607aee';
+        const cursorColor = '#000000';
 
         const canvasRef = useRef(null);
         const canvasCtx = useRef(null);
@@ -11,7 +14,7 @@ const WaveformCanvas = forwardRef(
         const canvasHeight = useRef(0);
 
         const waveformImgData = useRef(null);
-        const maxDuration = useRef(2);
+        const maxDurationRef = useRef(2 );
         const startedPlaying = useRef(false);
 
         useEffect(() => {
@@ -30,15 +33,14 @@ const WaveformCanvas = forwardRef(
 
         useEffect(() => {
             if(isPlaying && !startedPlaying.current){
-                startedPlaying.current = !startedPlaying.current;
                 animateWaveformCursor();
             }
         },[isPlaying])
 
         const drawWaveformImpl = (trimmedChannelData) => {
-            canvasCtx.current.fillStyle = '#f5980a';
+            canvasCtx.current.fillStyle = canvasBgColor;
             canvasCtx.current.fillRect(0, 0, canvasWidth.current, canvasHeight.current);
-            canvasCtx.current.fillStyle  = '#607aee';
+            canvasCtx.current.fillStyle  = waveformColor;
 
             const chunkSize = Math.max(1, Math.floor(trimmedChannelData.length / canvasWidth.current));
 
@@ -66,6 +68,7 @@ const WaveformCanvas = forwardRef(
         const animateWaveformCursor = () => {
             animationController = window.requestAnimationFrame(animateWaveformCursor);
             if (canvasRef.current === null) return cancelAnimationFrame(animationController);
+            if (waveformImgData.current === null) return;
 
             const canvasCtx = canvasRef.current.getContext('2d');
             const width = canvasRef.current.clientWidth;
@@ -76,13 +79,13 @@ const WaveformCanvas = forwardRef(
             const currentTimeOffSet = getTimeOffSet();
             const currentTimeToPixelLocationFactor = calcCurrentTimeToPixelLocationFactor(duration, width);
             const contextTimeWithoutOffset = currentTime - currentTimeOffSet;
-            const currentBufferTime = contextTimeWithoutOffset - (Math.floor(contextTimeWithoutOffset / maxDuration.current) * maxDuration.current);
+            const currentBufferTime = contextTimeWithoutOffset - (Math.floor(contextTimeWithoutOffset / maxDurationRef.current) * maxDurationRef.current);
             let cursorPos = Math.floor(currentBufferTime / currentTimeToPixelLocationFactor);
 
             createImageBitmap(waveformImgData.current)
                 .then(image => canvasCtx.drawImage(image, 0, 0));
 
-            canvasCtx.fillStyle = '#000000';
+            canvasCtx.fillStyle = cursorColor;
             canvasCtx.fillRect(cursorPos, 0, 1, height);
         }
 
