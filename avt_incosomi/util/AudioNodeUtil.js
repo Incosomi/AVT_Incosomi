@@ -1,7 +1,7 @@
 
-export function startAudio (isPlaying, audioSource, audioCtx) {
+export function startAudio (isPlaying, audioSource, audioCtx, startTime) {
     if(!isPlaying)return 0;
-    audioSource.start();
+    audioSource.start(startTime);
     return audioCtx.currentTime;
 }
 

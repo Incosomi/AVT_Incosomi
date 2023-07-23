@@ -6,7 +6,7 @@ import StageArea from "@/components/stageArea";
 export default function DJTool() {
     return (
         <div className="bg-info/30 w-screen h-screen flex">
-            <div className="flex flex-col w-[40%] ml-4">
+            <div className="flex flex-col w-[80%] ml-4">
                 <PlayerArea />
             </div>
             <div className="flex my-auto flex-col">

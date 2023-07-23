@@ -11,7 +11,6 @@ import {
 import {trimAudioBufferToMax} from "@/util/AudioBufferUtil";
 import {SpeakerWaveIcon, SpeakerXMarkIcon} from "@heroicons/react/20/solid";
 
-
 export default function PlayerBar(props) {
 
     const THISDivRef = useRef(null);
@@ -21,7 +20,7 @@ export default function PlayerBar(props) {
     const [isMuted, setIsMuted] = useState(false);
     const [fileSource, setFileSource] = useState(null);
 
-    const audioCtx = useRef(new AudioContext());
+    //const audioCtx = useRef(new AudioContext());
     const audioBuffer = useRef(new AudioBuffer({length:1, sampleRate: 44100, numberOfChannels: 1}));
     const audioSource = useRef(null);
     const volumeNode = useRef(null);
@@ -30,9 +29,9 @@ export default function PlayerBar(props) {
     const highPassFilterNode = useRef(null);
     const convolverNode = useRef(null);
 
-    const maxDuration = 2;
-    const channel = 0;
     const timeOffSet = useRef(0);
+
+    const startTime = useRef(-1);
 
     useEffect(() => {
         setKnobSize(THISDivRef.current ? THISDivRef.current.offsetHeight : null); // Update knobSize when THISDivRef changes
@@ -53,28 +52,37 @@ export default function PlayerBar(props) {
         setIsMuted(!isMuted);
     }
 
+    const channel = 0;
+
     const handleSourceFileChange = (files) => {
+        props.createAudioCtxHandler();
         let fileBlob = window.URL.createObjectURL(files[0]);
         setFileSource(fileBlob);
         fetch(fileBlob)
             .then(response => response.arrayBuffer())
-            .then(buf => audioCtx.current.decodeAudioData(buf))
+            .then(buf => props.getAudioCtxHandler().decodeAudioData(buf))
             .then(audioBuf => {
                 audioBuffer.current = audioBuf;
-                return trimAudioBufferToMax(audioBuffer.current, maxDuration, channel);
+                if(props.getMasterDurationHandler() === 0){
+                    startTime.current = 0;
+                    props.setMasterDurationHandler(audioBuffer.current.duration);
+                    return audioBuffer.current.getChannelData(channel);
+                }else {
+                    return trimAudioBufferToMax(audioBuffer.current, props.getMasterDurationHandler(), channel);
+                }
             })
-            .then(trimmedChannelData => {
+            .then(channelData => {
                 audioBuffer.current = new AudioBuffer({
-                    length: trimmedChannelData.length,
+                    length: channelData.length,
                     sampleRate: audioBuffer.current.sampleRate,
                     numberOfChannels: audioBuffer.current.numberOfChannels});
-                audioBuffer.current.copyToChannel(trimmedChannelData, channel);
-                waveformCanvasRef.current.drawWaveForm(trimmedChannelData);
+                audioBuffer.current.copyToChannel(channelData, channel);
+                waveformCanvasRef.current.drawWaveForm(channelData);
             })
             .then(() => {
-                setupAndConnectNodes()
-                timeOffSet.current = startAudio(props.isPlaying, audioSource.current, audioCtx.current);
-
+                setupAndConnectNodes();
+                if(startTime.current < 0)startTime.current = props.getStartTimeHandler();
+                timeOffSet.current = startAudio(props.isPlaying, audioSource.current, props.getAudioCtxHandler(), startTime.current);
             });
     };
 
@@ -85,31 +93,33 @@ export default function PlayerBar(props) {
     const handlePlayPause = (shouldPlay) => {
         if(fileSource != null){
             if(shouldPlay){
-                if (audioCtx.current.state === "suspended") audioCtx.current.resume();
+                if (props.getAudioCtxHandler().state === "suspended") props.getAudioCtxHandler().resume();
                 else {
-                    timeOffSet.current = audioCtx.current.currentTime;
-                    audioSource.current.start();
+                    timeOffSet.current = props.getAudioCtxHandler().currentTime;
+                    let startTime = props.getStartTimeHandler();
+                    console.log("Starttime playpause: "+startTime);
+                    audioSource.current.start(startTime);
                 }
             } else {
-                if (audioCtx.current.state === "running") audioCtx.current.suspend();
+                if (props.getAudioCtxHandler().state === "running") props.getAudioCtxHandler().suspend();
             }
         }
     }
 
     const setupAndConnectNodes = () => {
-        audioSource.current = setupAudioSourceNode(audioCtx.current, audioBuffer.current);
-        volumeNode.current = setupVolumeNode(audioCtx.current);
-        analyzer.current = audioCtx.current.createAnalyser();
-        lowPassFilterNode.current = setupLowPassFilterNode(audioCtx.current);
-        highPassFilterNode.current = setUpHighPassFilterNode(audioCtx.current);
-        convolverNode.current = setUpConvolverNode(audioCtx.current);
+        audioSource.current = setupAudioSourceNode(props.getAudioCtxHandler(), audioBuffer.current);
+        volumeNode.current = setupVolumeNode(props.getAudioCtxHandler());
+        analyzer.current = props.getAudioCtxHandler().createAnalyser();
+        lowPassFilterNode.current = setupLowPassFilterNode(props.getAudioCtxHandler());
+        highPassFilterNode.current = setUpHighPassFilterNode(props.getAudioCtxHandler());
+        convolverNode.current = setUpConvolverNode(props.getAudioCtxHandler());
         audioSource.current
             .connect(volumeNode.current)
             .connect(lowPassFilterNode.current)
             .connect(highPassFilterNode.current)
             .connect(analyzer.current)
             .connect(convolverNode.current)
-            .connect(audioCtx.current.destination);
+            .connect(props.getAudioCtxHandler().destination);
     }
 
     const changeVolumeValue = (newVolume) => {
@@ -128,15 +138,19 @@ export default function PlayerBar(props) {
     }
 
     const getCurrentTime = () => {
-        return audioCtx.current.currentTime;
+        return props.getAudioCtxHandler().currentTime;
     }
 
     const getCurrentTimeOffSet = () => {
-        return timeOffSet.current;
+        return props.getMasterTimeOffsetHandler();
     }
 
-    const getDuration = () => {
+    const getAudioBufferDuration = () => {
         return audioBuffer.current.duration;
+    }
+
+    const shouldDrawCursor = () => {
+        return startTime.current <= props.getAudioCtxHandler().currentTime;
     }
 
     return (
@@ -150,23 +164,19 @@ export default function PlayerBar(props) {
                     <button id="delete" className={`h-auto btn ${fileSource ? "btn-error" : "btn-disabled"}`} onClick={handleDelete}>
                         <TrashIcon className="h-6 w-6" />
                     </button>
-
                 </div>
-
             </div>
             <div className="col-span-1 justify-center ">
                 <div className="flex flex-col gap-4 items-center">
-                    <VolumeKnob
-                        knobSize={knobSize || 48}
-                        onChangeCallback={changeVolumeValue}
-                    />
+                    <VolumeKnob knobSize={knobSize || 48} onChangeCallback={changeVolumeValue}/>
                     <div>
-                        <button id="play" className={`h-auto btn ${fileSource ? "btn-info" : "btn-disabled"}`} onClick={handleMuteSwitch}>
+                        <button id="play"
+                                className={`h-auto btn ${fileSource ? "btn-info" : "btn-disabled"}`}
+                                onClick={handleMuteSwitch}>
                             {isMuted ? <SpeakerXMarkIcon className="h-6 w-6" /> : <SpeakerWaveIcon className="h-6 w-6" />}
                         </button>
                     </div>
                 </div>
-
             </div>
             <div className="col-span-1 flex justify-center">
                 <PassFilterKnob knobSize={knobSize || 48} onChangeCallback={changeHighPassFrequency}/>
@@ -176,7 +186,12 @@ export default function PlayerBar(props) {
             </div>
             <div className="col-span-5 flex justify-center flex-col">
                 <div className="flex justify-center">
-                    <WaveformCanvas isPlaying={props.isPlaying} getCurrentTime={getCurrentTime} getTimeOffSet={getCurrentTimeOffSet} getDuration={getDuration} ref={waveformCanvasRef}/>
+                    <WaveformCanvas isPlaying={props.isPlaying}
+                                    shouldDrawCursor={shouldDrawCursor}
+                                    getCurrentTime={getCurrentTime}
+                                    getTimeOffSet={getCurrentTimeOffSet}
+                                    getMaxDuration={getAudioBufferDuration}
+                                    ref={waveformCanvasRef}/>
                 </div>
                 <div className="flex justify-center">
                     <PassFilterKnob knobSize={knobSize || 38} text={"Effect"} onChangeCallback={changeHighPassFrequency}/>

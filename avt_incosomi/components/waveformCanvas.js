@@ -3,7 +3,7 @@ import {forwardRef, useEffect, useImperativeHandle, useRef} from "react";
 let animationController;
 
 const WaveformCanvas = forwardRef(
-    function WaveformCanvas({isPlaying, getCurrentTime, getTimeOffSet, getDuration}, ref) {
+    function WaveformCanvas({isPlaying, shouldDrawCursor, getCurrentTime, getTimeOffSet, getMaxDuration}, ref) {
         const canvasBgColor = '#f5980a';
         const waveformColor = '#607aee';
         const cursorColor = '#000000';
@@ -14,7 +14,6 @@ const WaveformCanvas = forwardRef(
         const canvasHeight = useRef(0);
 
         const waveformImgData = useRef(null);
-        const maxDurationRef = useRef(2 );
         const startedPlaying = useRef(false);
 
         useEffect(() => {
@@ -66,20 +65,22 @@ const WaveformCanvas = forwardRef(
         }
 
         const animateWaveformCursor = () => {
+
             animationController = window.requestAnimationFrame(animateWaveformCursor);
             if (canvasRef.current === null) return cancelAnimationFrame(animationController);
             if (waveformImgData.current === null) return;
+            if(!shouldDrawCursor()) return;
 
             const canvasCtx = canvasRef.current.getContext('2d');
             const width = canvasRef.current.clientWidth;
             const height = canvasRef.current.clientHeight;
 
-            const duration = getDuration();
+            const maxDuration = getMaxDuration();
             const currentTime = getCurrentTime();
             const currentTimeOffSet = getTimeOffSet();
-            const currentTimeToPixelLocationFactor = calcCurrentTimeToPixelLocationFactor(duration, width);
+            const currentTimeToPixelLocationFactor = calcCurrentTimeToPixelLocationFactor(maxDuration, width);
             const contextTimeWithoutOffset = currentTime - currentTimeOffSet;
-            const currentBufferTime = contextTimeWithoutOffset - (Math.floor(contextTimeWithoutOffset / maxDurationRef.current) * maxDurationRef.current);
+            const currentBufferTime = contextTimeWithoutOffset - (Math.floor(contextTimeWithoutOffset / getMaxDuration()) * getMaxDuration());
             let cursorPos = Math.floor(currentBufferTime / currentTimeToPixelLocationFactor);
 
             createImageBitmap(waveformImgData.current)
