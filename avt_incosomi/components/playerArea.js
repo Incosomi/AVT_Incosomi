@@ -1,6 +1,7 @@
 import PlayerBar from "@/components/playerBar";
 import {useState, useEffect, useRef} from "react";
 import {PlusSmallIcon} from "@heroicons/react/24/solid";
+import PlayerVisualizer from "@/components/playerVisualizer";
 
 export default function PlayerArea() {
     const [barIds, setBarIds] = useState([]);
@@ -27,11 +28,14 @@ export default function PlayerArea() {
                 <th>Mid</th>
                 <th>Low</th>
                 <th>Vol</th>
+                <th>Stage</th>
             </tr>
             </thead>
             <tbody>
             {barIds.map((barId) => (
-                <PlayerBar key={barId} id={barId} deleteHandler={() => handleDeletePlayerBar(barId)}/>))}
+                    <PlayerBar key={barId} id={barId} deleteHandler={() => handleDeletePlayerBar(barId)}/>
+
+            ))}
             </tbody>
         </table>
 
