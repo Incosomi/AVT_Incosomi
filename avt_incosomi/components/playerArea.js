@@ -1,7 +1,7 @@
 import PlayerBar from "@/components/playerBar";
 import {useState, useEffect, useRef} from "react";
 import {PlusSmallIcon} from "@heroicons/react/24/solid";
-import PlayerVisualizer from "@/components/playerVisualizer";
+//import PlayerVisualizer from "@/components/playerVisualizer";
 
 export default function PlayerArea() {
     const [barIds, setBarIds] = useState([]);
