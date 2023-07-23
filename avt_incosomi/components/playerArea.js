@@ -1,6 +1,6 @@
 import PlayerBar from "@/components/playerBar";
-import {useRef, useState} from "react";
-import {PlayIcon, PlusSmallIcon} from "@heroicons/react/24/solid";
+import {useEffect, useRef, useState} from "react";
+import {PlayIcon} from "@heroicons/react/24/solid";
 import {PauseIcon} from "@heroicons/react/20/solid";
 
 export default function PlayerArea() {
@@ -13,6 +13,10 @@ export default function PlayerArea() {
 
     const audioCtx = useRef(null);
 
+    useEffect(() => {
+        handleAddPlayerBar();
+    },[]);
+
     const handleAddPlayerBar = () => {
         setLastBarId(lastBarId + 1);
         setBarIds([...barIds, lastBarId]);
@@ -20,6 +24,10 @@ export default function PlayerArea() {
 
     const handleDeletePlayerBar = (barId) => {
         setBarIds(barIds.filter((id) => id !== barId));
+        if(barIds.length === 2){
+            masterDuration.current = 0;
+            masterTimeOffset.current = 0;
+        }
     };
 
     const handlePlayPauseSwitch = () => {
@@ -43,7 +51,7 @@ export default function PlayerArea() {
     }
 
     const getMasterTimeOffset = () => {
-        return masterDuration.current;
+        return masterTimeOffset.current;
     }
 
     const setMasterTimeOffset = (newMasterTimeOffset) => {
@@ -75,11 +83,9 @@ export default function PlayerArea() {
                            getMasterTimeOffsetHandler={getMasterTimeOffset}
                            setMasterTimeOffsetHandler={setMasterTimeOffset}
                            getStartTimeHandler={getStartTime}
+                           addPlayerBarHandler={handleAddPlayerBar}
                            deleteHandler={() => handleDeletePlayerBar(barId)}/>
             ))}
-            <button className="my-1 rounded-full btn btn-success" onClick={handleAddPlayerBar}>
-                <PlusSmallIcon className="h-6 w-6" />
-            </button>
             <button id="play" className="h-auto btn btn-success" onClick={handlePlayPauseSwitch} >
                 {isPlaying ? <PauseIcon className="h-6 w-6" /> : <PlayIcon className="h-6 w-6" />}
             </button>
