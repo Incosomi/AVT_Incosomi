@@ -65,7 +65,6 @@ const WaveformCanvas = forwardRef(
         }
 
         const animateWaveformCursor = () => {
-
             animationController = window.requestAnimationFrame(animateWaveformCursor);
             if (canvasRef.current === null) return cancelAnimationFrame(animationController);
             if (waveformImgData.current === null) return;
@@ -77,7 +76,9 @@ const WaveformCanvas = forwardRef(
 
             const maxDuration = getMaxDuration();
             const currentTime = getCurrentTime();
+            console.log("CursorCurrentTime: "+currentTime);
             const currentTimeOffSet = getTimeOffSet();
+            console.log("timeoffset: "+currentTimeOffSet);
             const currentTimeToPixelLocationFactor = calcCurrentTimeToPixelLocationFactor(maxDuration, width);
             const contextTimeWithoutOffset = currentTime - currentTimeOffSet;
             const currentBufferTime = contextTimeWithoutOffset - (Math.floor(contextTimeWithoutOffset / getMaxDuration()) * getMaxDuration());

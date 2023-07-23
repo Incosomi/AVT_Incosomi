@@ -20,8 +20,7 @@ export default function PlayerBar(props) {
     const [isMuted, setIsMuted] = useState(false);
     const [fileSource, setFileSource] = useState(null);
 
-    //const audioCtx = useRef(new AudioContext());
-    const audioBuffer = useRef(new AudioBuffer({length:1, sampleRate: 44100, numberOfChannels: 1}));
+    const audioBuffer = useRef(null);
     const audioSource = useRef(null);
     const volumeNode = useRef(null);
     const analyzer = useRef(null);
@@ -38,7 +37,7 @@ export default function PlayerBar(props) {
     }, []);
 
     const handleDelete = () => {
-        audioSource.current.stop();
+        audioSource.current.loop = false;
         audioSource.current.disconnect();
         props.deleteHandler();
     };
@@ -83,7 +82,12 @@ export default function PlayerBar(props) {
                 setupAndConnectNodes();
                 if(startTime.current < 0)startTime.current = props.getStartTimeHandler();
                 timeOffSet.current = startAudio(props.isPlaying, audioSource.current, props.getAudioCtxHandler(), startTime.current);
+            })
+            .then(() => {
+                props.addPlayerBarHandler();
             });
+        console.log("Playerbar TimeOffSet: "+props.getMasterTimeOffsetHandler());
+        console.log("Current Time: "+props.getAudioCtxHandler().currentTime);
     };
 
     useEffect(() => {
@@ -96,9 +100,7 @@ export default function PlayerBar(props) {
                 if (props.getAudioCtxHandler().state === "suspended") props.getAudioCtxHandler().resume();
                 else {
                     timeOffSet.current = props.getAudioCtxHandler().currentTime;
-                    let startTime = props.getStartTimeHandler();
-                    console.log("Starttime playpause: "+startTime);
-                    audioSource.current.start(startTime);
+                    audioSource.current.start(startTime.current);
                 }
             } else {
                 if (props.getAudioCtxHandler().state === "running") props.getAudioCtxHandler().suspend();
