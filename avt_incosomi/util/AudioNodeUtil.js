@@ -1,3 +1,4 @@
+import {calculatePeakingFrequency, calculatePeakingQFactor} from "@/util/EqualizerUtil";
 
 export function startAudio (isPlaying, audioSource, audioCtx, startTime) {
     if(!isPlaying)return 0;
@@ -18,21 +19,31 @@ export function setupVolumeNode(audiCtx){
     return volumeNode;
 }
 
-export function setupLowPassFilterNode(audioCtx){
-    let lowPassFilterNode = audioCtx.createBiquadFilter();
-    lowPassFilterNode.type = "lowpass";
-    lowPassFilterNode.frequency.value = 5000;
-    return lowPassFilterNode;
+export function setupLowShelfFilterNode(audioCtx, frequency){
+    let lowShelfFilterNode = audioCtx.createBiquadFilter();
+    lowShelfFilterNode.type = "lowshelf";
+    lowShelfFilterNode.frequency.value = frequency;
+    return lowShelfFilterNode;
 }
 
-export function setUpHighPassFilterNode(audioCtx) {
-    let  highPassFilterNode = audioCtx.createBiquadFilter();
-    highPassFilterNode.type = "highpass";
-    highPassFilterNode.frequency.value = 5000;
-    return highPassFilterNode;
+export function setupPeakingFilterNode(audioCtx, lowShelf_Frequency, highShelf_Frequency){
+    let peaking_Frequency = calculatePeakingFrequency(lowShelf_Frequency, highShelf_Frequency);
+    let peaking_q = calculatePeakingQFactor(peaking_Frequency, lowShelf_Frequency, highShelf_Frequency);
+    let peakingFilterNode = audioCtx.createBiquadFilter();
+    peakingFilterNode.type = "peaking";
+    peakingFilterNode.frequency.value = peaking_Frequency;
+    peakingFilterNode.Q.value = peaking_q;
+    return peakingFilterNode;
 }
 
-export function setUpConvolverNode(audioCtx){
+export function setupHighShelfFilterNode(audioCtx, frequency) {
+    let  highShelfFilterNode = audioCtx.createBiquadFilter();
+    highShelfFilterNode.type = "highshelf";
+    highShelfFilterNode.frequency.value = frequency;
+    return highShelfFilterNode;
+}
+
+export function setupConvolverNode(audioCtx){
     let impulse = calcImpulseResponse(1, 2, audioCtx);
     return new ConvolverNode(audioCtx, {buffer:impulse});
 }
