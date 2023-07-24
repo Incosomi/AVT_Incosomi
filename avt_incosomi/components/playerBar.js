@@ -4,12 +4,13 @@ import VolumeKnob from "@/components/knobs/volumeKnob";
 import PassFilterKnob from "@/components/knobs/passFilterKnob";
 import WaveformCanvas from "@/components/waveformCanvas";
 import {
-    setupAudioSourceNode, setUpConvolverNode,
-    setUpHighPassFilterNode, setupLowPassFilterNode,
+    setupAudioSourceNode, setupConvolverNode,
+    setupHighShelfFilterNode, setupLowShelfFilterNode, setupPeakingFilterNode,
     setupVolumeNode, startAudio
 } from "@/util/AudioNodeUtil";
 import {trimAudioBufferToMax} from "@/util/AudioBufferUtil";
 import {SpeakerWaveIcon, SpeakerXMarkIcon} from "@heroicons/react/20/solid";
+import EqualizerCanvas from "@/components/equalizerCanvas";
 
 export default function PlayerBar(props) {
 
@@ -24,8 +25,9 @@ export default function PlayerBar(props) {
     const audioSource = useRef(null);
     const volumeNode = useRef(null);
     const analyzer = useRef(null);
-    const lowPassFilterNode = useRef(null);
-    const highPassFilterNode = useRef(null);
+    const lowShelfFilterNode = useRef(null);
+    const peakingFilterNode = useRef(null);
+    const highShelfFilterNode = useRef(null);
     const convolverNode = useRef(null);
 
     const timeOffSet = useRef(0);
@@ -108,17 +110,22 @@ export default function PlayerBar(props) {
         }
     }
 
+    const lowShelf_Frequency = 2500;
+    const highShelf_Frequency = 10000;
+
     const setupAndConnectNodes = () => {
         audioSource.current = setupAudioSourceNode(props.getAudioCtxHandler(), audioBuffer.current);
         volumeNode.current = setupVolumeNode(props.getAudioCtxHandler());
         analyzer.current = props.getAudioCtxHandler().createAnalyser();
-        lowPassFilterNode.current = setupLowPassFilterNode(props.getAudioCtxHandler());
-        highPassFilterNode.current = setUpHighPassFilterNode(props.getAudioCtxHandler());
-        convolverNode.current = setUpConvolverNode(props.getAudioCtxHandler());
+        lowShelfFilterNode.current = setupLowShelfFilterNode(props.getAudioCtxHandler(), lowShelf_Frequency);
+        highShelfFilterNode.current = setupHighShelfFilterNode(props.getAudioCtxHandler(), highShelf_Frequency);
+        peakingFilterNode.current = setupPeakingFilterNode(props.getAudioCtxHandler(),lowShelf_Frequency, highShelf_Frequency);
+        convolverNode.current = setupConvolverNode(props.getAudioCtxHandler());
         audioSource.current
             .connect(volumeNode.current)
-            .connect(lowPassFilterNode.current)
-            .connect(highPassFilterNode.current)
+            .connect(lowShelfFilterNode.current)
+            .connect(peakingFilterNode.current)
+            .connect(highShelfFilterNode.current)
             .connect(analyzer.current)
             .connect(convolverNode.current)
             .connect(props.getAudioCtxHandler().destination);
@@ -130,14 +137,61 @@ export default function PlayerBar(props) {
     }
 
     const changeLowPassFrequency = (newFrequency) => {
-        if(lowPassFilterNode.current == null) return;
-        lowPassFilterNode.current.frequency.value = newFrequency;
+        if(lowShelfFilterNode.current == null) return;
+        lowShelfFilterNode.current.frequency.value = newFrequency;
     }
 
-    const changeHighPassFrequency = (newFrequency) => {
-        if(highPassFilterNode.current == null) return;
-        highPassFilterNode.current.frequency.value = newFrequency;
+    const changeHighShelfFrequency = (newFrequency) => {
+        if(highShelfFilterNode.current == null) return;
+        highShelfFilterNode.current.frequency.value = newFrequency;
     }
+
+
+    const getLowShelfFrequency = () => {
+        return lowShelfFilterNode.current.frequency.value;
+    }
+    const getLowShelfGain = () => {
+        return lowShelfFilterNode.current.gain.value;
+    }
+
+    const setLowShelfGain = (newGain) => {
+        if(lowShelfFilterNode.current == null) return;
+        if(newGain > 40)return;
+        if(newGain < -40)return;
+        lowShelfFilterNode.current.gain.value = newGain;
+    }
+
+    const getPeakingFrequency = () => {
+        return peakingFilterNode.current.frequency.value;
+    }
+
+    const getPeakingGain = () => {
+        return peakingFilterNode.current.gain.value;
+    }
+
+    const setPeakingGain = (newGain) => {
+        if(peakingFilterNode.current == null) return;
+        if(newGain > 40)return;
+        if(newGain < -40)return;
+        peakingFilterNode.current.gain.value = newGain;
+    }
+
+    const getHighShelfFrequency = () => {
+        return highShelfFilterNode.current.frequency.value;
+    }
+
+    const getHighShelfGain = () => {
+        return highShelfFilterNode.current.gain.value;
+    }
+
+    const setHighShelfGain = (newGain) => {
+        if(highShelfFilterNode.current == null) return;
+        if(newGain > 40)return;
+        if(newGain < -40)return;
+        highShelfFilterNode.current.gain.value = newGain;
+    }
+
+
 
     const getCurrentTime = () => {
         return props.getAudioCtxHandler().currentTime;
@@ -153,6 +207,14 @@ export default function PlayerBar(props) {
 
     const shouldDrawCursor = () => {
         return startTime.current <= props.getAudioCtxHandler().currentTime;
+    }
+
+    const getAnalyzerNode = () => {
+        return analyzer.current;
+    }
+
+    const getByteFrequencyData = (songData) => {
+        analyzer.current.getByteFrequencyData(songData);
     }
 
     return (
@@ -181,7 +243,7 @@ export default function PlayerBar(props) {
                 </div>
             </div>
             <div className="col-span-1 flex justify-center">
-                <PassFilterKnob knobSize={knobSize || 48} onChangeCallback={changeHighPassFrequency}/>
+                <PassFilterKnob knobSize={knobSize || 48} onChangeCallback={changeHighShelfFrequency}/>
             </div>
             <div className="col-span-1 flex justify-center">
                 <PassFilterKnob knobSize={knobSize || 48} onChangeCallback={changeLowPassFrequency}/>
@@ -196,9 +258,11 @@ export default function PlayerBar(props) {
                                     ref={waveformCanvasRef}/>
                 </div>
                 <div className="flex justify-center">
-                    <PassFilterKnob knobSize={knobSize || 38} text={"Effect"} onChangeCallback={changeHighPassFrequency}/>
-                    <PassFilterKnob knobSize={knobSize || 38} text={"Effect"} onChangeCallback={changeHighPassFrequency}/>
-                    <PassFilterKnob knobSize={knobSize || 38} text={"Effect"} onChangeCallback={changeHighPassFrequency}/>
+                    <EqualizerCanvas getAnalyzer={getAnalyzerNode}
+                                     getFrameFrequencyData={getByteFrequencyData}
+                                     getLowFrequency={getLowShelfFrequency} getLowGain={getLowShelfGain} setLowGain={setLowShelfGain}
+                                     getPeakingFrequency={getPeakingFrequency} getPeakingGain={getPeakingGain} setPeakingGain={setPeakingGain}
+                                     getHighFrequency={getHighShelfFrequency} getHighGain={getHighShelfGain} setHighGain={setHighShelfGain}/>
                 </div>
             </div>
         </div>

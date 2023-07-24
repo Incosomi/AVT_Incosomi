@@ -70,25 +70,25 @@ const WaveformCanvas = forwardRef(
             if (waveformImgData.current === null) return;
             if(!shouldDrawCursor()) return;
 
-            const canvasCtx = canvasRef.current.getContext('2d');
-            const width = canvasRef.current.clientWidth;
-            const height = canvasRef.current.clientHeight;
+            let cursorPos = calcCursorPosition(canvasRef.current.clientWidth);
 
-            const maxDuration = getMaxDuration();
-            const currentTime = getCurrentTime();
-            console.log("CursorCurrentTime: "+currentTime);
-            const currentTimeOffSet = getTimeOffSet();
-            console.log("timeoffset: "+currentTimeOffSet);
-            const currentTimeToPixelLocationFactor = calcCurrentTimeToPixelLocationFactor(maxDuration, width);
-            const contextTimeWithoutOffset = currentTime - currentTimeOffSet;
-            const currentBufferTime = contextTimeWithoutOffset - (Math.floor(contextTimeWithoutOffset / getMaxDuration()) * getMaxDuration());
-            let cursorPos = Math.floor(currentBufferTime / currentTimeToPixelLocationFactor);
+            const canvasCtx = canvasRef.current.getContext('2d');
 
             createImageBitmap(waveformImgData.current)
                 .then(image => canvasCtx.drawImage(image, 0, 0));
 
             canvasCtx.fillStyle = cursorColor;
-            canvasCtx.fillRect(cursorPos, 0, 1, height);
+            canvasCtx.fillRect(cursorPos, 0, 1, canvasRef.current.clientHeight);
+        }
+
+        const calcCursorPosition = (canvasWidth) => {
+            const maxDuration = getMaxDuration();
+            const currentTime = getCurrentTime();
+            const currentTimeOffSet = getTimeOffSet();
+            const currentTimeToPixelLocationFactor = calcCurrentTimeToPixelLocationFactor(maxDuration, canvasWidth);
+            const contextTimeWithoutOffset = currentTime - currentTimeOffSet;
+            const currentBufferTime = contextTimeWithoutOffset - (Math.floor(contextTimeWithoutOffset / getMaxDuration()) * getMaxDuration());
+            return Math.floor(currentBufferTime / currentTimeToPixelLocationFactor);
         }
 
         const calcCurrentTimeToPixelLocationFactor = (duration, width) => {
