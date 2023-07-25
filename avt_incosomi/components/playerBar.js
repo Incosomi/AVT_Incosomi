@@ -388,7 +388,7 @@ export default function PlayerBar(props) {
             <div id="overlap"
                  className="absolute top-1/2 right-[-50%] transform -translate-x-1/2 -translate-y-1/2 p-2 rounded-md z-10">
 
-                <div className="w-40 h-40">
+                <div className="w-32 h-32">
                     <canvas id="stage"
                             className="rounded-l-2xl absolute top-0 left-0 w-full h-full"
                             ref={playerCanvas} style={{
