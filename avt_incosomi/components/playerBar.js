@@ -218,53 +218,59 @@ export default function PlayerBar(props) {
     }
 
     return (
-        <div className="border border-secondary border-2 py-2 rounded-md mb-2 grid grid-cols-9">
-            <div className="col-span-1 flex justify-center">
-                <div className="flex flex-col gap-4">
-                    <label id="import" className="h-auto btn btn-info" htmlFor={`file-input-${props.id}`}>
-                        <input id={`file-input-${props.id}`} type="file" style={{ display: "none" }} onChange={(e) => handleSourceFileChange(e.target.files)}/>
-                        <FolderPlusIcon className="h-6 w-6" />
-                    </label>
-                    <button id="delete" className={`h-auto btn ${fileSource ? "btn-error" : "btn-disabled"}`} onClick={handleDelete}>
-                        <TrashIcon className="h-6 w-6" />
-                    </button>
-                </div>
-            </div>
-            <div className="col-span-1 justify-center ">
-                <div className="flex flex-col gap-4 items-center">
-                    <VolumeKnob knobSize={knobSize || 48} onChangeCallback={changeVolumeValue}/>
-                    <div>
-                        <button id="play"
-                                className={`h-auto btn ${fileSource ? "btn-info" : "btn-disabled"}`}
-                                onClick={handleMuteSwitch}>
-                            {isMuted ? <SpeakerXMarkIcon className="h-6 w-6" /> : <SpeakerWaveIcon className="h-6 w-6" />}
+        <div className="relative">
+            <div className="border border-secondary border-2 py-2 rounded-md mb-2 grid grid-cols-9">
+                <div className="col-span-1 flex justify-center">
+                    <div className="flex flex-col gap-4">
+                        <label id="import" className="h-auto btn btn-info" htmlFor={`file-input-${props.id}`}>
+                            <input id={`file-input-${props.id}`} type="file" style={{ display: "none" }} onChange={(e) => handleSourceFileChange(e.target.files)}/>
+                            <FolderPlusIcon className="h-6 w-6" />
+                        </label>
+                        <button id="delete" className={`h-auto btn ${fileSource ? "btn-error" : "btn-disabled"}`} onClick={handleDelete}>
+                            <TrashIcon className="h-6 w-6" />
                         </button>
                     </div>
                 </div>
-            </div>
-            <div className="col-span-1 flex justify-center">
-                <PassFilterKnob knobSize={knobSize || 48} onChangeCallback={changeHighShelfFrequency}/>
-            </div>
-            <div className="col-span-1 flex justify-center">
-                <PassFilterKnob knobSize={knobSize || 48} onChangeCallback={changeLowPassFrequency}/>
-            </div>
-            <div className="col-span-5 flex justify-center flex-col">
-                <div className="flex justify-center">
-                    <WaveformCanvas isPlaying={props.isPlaying}
-                                    shouldDrawCursor={shouldDrawCursor}
-                                    getCurrentTime={getCurrentTime}
-                                    getTimeOffSet={getCurrentTimeOffSet}
-                                    getMaxDuration={getAudioBufferDuration}
-                                    ref={waveformCanvasRef}/>
+                <div className="col-span-1 justify-center ">
+                    <div className="flex flex-col gap-4 items-center">
+                        <VolumeKnob knobSize={knobSize || 48} onChangeCallback={changeVolumeValue}/>
+                        <div>
+                            <button id="play"
+                                    className={`h-auto btn ${fileSource ? "btn-info" : "btn-disabled"}`}
+                                    onClick={handleMuteSwitch}>
+                                {isMuted ? <SpeakerXMarkIcon className="h-6 w-6" /> : <SpeakerWaveIcon className="h-6 w-6" />}
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <div className="flex justify-center">
-                    <EqualizerCanvas getAnalyzer={getAnalyzerNode}
-                                     getFrameFrequencyData={getByteFrequencyData}
-                                     getLowFrequency={getLowShelfFrequency} getLowGain={getLowShelfGain} setLowGain={setLowShelfGain}
-                                     getPeakingFrequency={getPeakingFrequency} getPeakingGain={getPeakingGain} setPeakingGain={setPeakingGain}
-                                     getHighFrequency={getHighShelfFrequency} getHighGain={getHighShelfGain} setHighGain={setHighShelfGain}/>
+                <div className="col-span-1 flex justify-center">
+                    <PassFilterKnob knobSize={knobSize || 48} onChangeCallback={changeHighShelfFrequency}/>
                 </div>
+                <div className="col-span-1 flex justify-center">
+                    <PassFilterKnob knobSize={knobSize || 48} onChangeCallback={changeLowPassFrequency}/>
+                </div>
+                <div className="col-span-5 flex justify-center flex-col">
+                    <div className="flex justify-center">
+                        <WaveformCanvas isPlaying={props.isPlaying}
+                                        shouldDrawCursor={shouldDrawCursor}
+                                        getCurrentTime={getCurrentTime}
+                                        getTimeOffSet={getCurrentTimeOffSet}
+                                        getMaxDuration={getAudioBufferDuration}
+                                        ref={waveformCanvasRef}/>
+                    </div>
+                    <div className="flex justify-center">
+                        <EqualizerCanvas getAnalyzer={getAnalyzerNode}
+                                         getFrameFrequencyData={getByteFrequencyData}
+                                         getLowFrequency={getLowShelfFrequency} getLowGain={getLowShelfGain} setLowGain={setLowShelfGain}
+                                         getPeakingFrequency={getPeakingFrequency} getPeakingGain={getPeakingGain} setPeakingGain={setPeakingGain}
+                                         getHighFrequency={getHighShelfFrequency} getHighGain={getHighShelfGain} setHighGain={setHighShelfGain}/>
+                    </div>
+                </div>
+            </div>
+            <div id="overlap" className="absolute top-1/2 right-[-50%] transform -translate-x-1/2 -translate-y-1/2 bg-white p-2 rounded-md z-10">
+                <p>TESTTEST</p>
             </div>
         </div>
+
     );
 }
