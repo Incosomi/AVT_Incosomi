@@ -2,6 +2,7 @@ import PlayerBar from "@/components/playerBar";
 import {useEffect, useRef, useState} from "react";
 import {PlayIcon} from "@heroicons/react/24/solid";
 import {PauseIcon} from "@heroicons/react/20/solid";
+import Image from "next/image";
 
 export default function PlayerArea() {
     const [barIds, setBarIds] = useState([]);
@@ -64,31 +65,43 @@ export default function PlayerArea() {
     }
 
     return (
-        <div id="PlayerArea" className="grid grid-rows-1 gap-2">
-            <div className="grid grid-cols-10 rounded-md border border-4 border-secondary text-center font-bold py-1 mt-4">
-                <div className="col-span-1"></div>
-                <div className="col-span-1">Vol</div>
-                <div className="col-span-1 ">High</div>
-                <div className="col-span-1">Low</div>
-                <div className="col-span-5">Waveform</div>
-                <div className="col-span-1">Avatar</div>
-
+        <div id="PlayerArea" className="grid grid-rows-1">
+            <div className="grid grid-cols-3">
+                <div className="flex items-center col-span-2 grid grid-cols-10 rounded-md border border-4 border-secondary text-center font-bold py-1 mt-1">
+                    <div className="col-span-1"></div>
+                    <div className="col-span-1">Vol</div>
+                    <div className="col-span-1 ">High</div>
+                    <div className="col-span-1">Low</div>
+                    <div className="col-span-4">Waveform</div>
+                    <div className="col-span-1">Avatar</div>
+                </div>
+                <div className="flex flex-row">
+                    <Image src={"/stage_tile_scheinwerfer_01.png"} alt="background" width={150} height={50}/>
+                    <Image src={"/stage_tile_scheinwerfer_01.png"} alt="background" width={150} height={50}/>
+                    <Image src={"/stage_tile_scheinwerfer_01.png"} alt="background" width={150} height={50}/>
+                    <Image src={"/stage_tile_scheinwerfer_01.png"} alt="background" width={150} height={50}/>
+                    <Image src={"/stage_tile_scheinwerfer_01.png"} alt="background" width={150} height={50}/>
+                    <Image src={"/stage_tile_scheinwerfer_01.png"} alt="background" width={150} height={50}/>
+                    <Image src={"/stage_tile_scheinwerfer_01.png"} alt="background" width={150} height={50}/>
+                </div>
             </div>
-            {barIds.map((barId) => (
-                <PlayerBar key={barId}
-                           id={barId}
-                           isPlaying={isPlaying}
-                           createAudioCtxHandler={createAudioCtx}
-                           getAudioCtxHandler={getAudioCtx}
-                           getMasterDurationHandler={getMasterDuration}
-                           setMasterDurationHandler={setMasterDuration}
-                           getMasterTimeOffsetHandler={getMasterTimeOffset}
-                           setMasterTimeOffsetHandler={setMasterTimeOffset}
-                           getStartTimeHandler={getStartTime}
-                           addPlayerBarHandler={handleAddPlayerBar}
-                           deleteHandler={() => handleDeletePlayerBar(barId)}/>
-            ))}
-            <button id="play" className="h-auto btn btn-success" onClick={handlePlayPauseSwitch} >
+            <div>
+                {barIds.map((barId) => (
+                    <PlayerBar key={barId}
+                               id={barId}
+                               isPlaying={isPlaying}
+                               createAudioCtxHandler={createAudioCtx}
+                               getAudioCtxHandler={getAudioCtx}
+                               getMasterDurationHandler={getMasterDuration}
+                               setMasterDurationHandler={setMasterDuration}
+                               getMasterTimeOffsetHandler={getMasterTimeOffset}
+                               setMasterTimeOffsetHandler={setMasterTimeOffset}
+                               getStartTimeHandler={getStartTime}
+                               addPlayerBarHandler={handleAddPlayerBar}
+                               deleteHandler={() => handleDeletePlayerBar(barId)}/>
+                ))}
+            </div>
+            <button id="play" className="h-auto btn btn-success col-span-1" onClick={handlePlayPauseSwitch} >
                 {isPlaying ? <PauseIcon className="h-6 w-6" /> : <PlayIcon className="h-6 w-6" />}
             </button>
         </div>
