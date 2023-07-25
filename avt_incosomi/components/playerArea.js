@@ -31,9 +31,9 @@ export default function PlayerArea() {
                 <th>Stage</th>
             </tr>
             </thead>
-            <tbody>
+            <tbody >
             {barIds.map((barId) => (
-                    <PlayerBar key={barId} id={barId} deleteHandler={() => handleDeletePlayerBar(barId)}/>
+                    <PlayerBar   key={barId} id={barId} deleteHandler={() => handleDeletePlayerBar(barId)}/>
 
             ))}
             </tbody>
