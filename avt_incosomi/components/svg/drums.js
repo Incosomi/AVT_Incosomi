@@ -1,6 +1,6 @@
 export default function Drums(){
     return (
-        <svg id="Drums" className="absolute top-1/2 left-1/2 w-full h-full" viewBox="0 0 100 100" fill="none"
+        <svg id="Drums" className="absolute w-full h-full" viewBox="0 0 100 100" fill="none"
              xmlns="http://www.w3.org/2000/svg">
             <g clip-path="url(#clip0_1_185)">
                 <path

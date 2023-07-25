@@ -1,6 +1,6 @@
 export default function Saxophone(){
     return (
-        <svg id="Saxaphone" className="absolute top-1/2 left-1/2 w-full h-full" viewBox="0 0 100 100" fill="none"
+        <svg id="Saxophone" className="absolute w-full h-full" viewBox="0 0 100 100" fill="none"
              xmlns="http://www.w3.org/2000/svg">
             <path
                 d="M24.42 23.71C23.96 22.7 23.58 21.64 23.29 20.57C22.74 18.58 22.52 16.32 23.63 14.58C24.93 12.53 27.72 11.75 28.86 9.61C29.2 8.97 29.39 8.2 29.96 7.75"

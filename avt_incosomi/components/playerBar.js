@@ -278,10 +278,10 @@ export default function PlayerBar(props) {
                     // Get the SVG element
 
 
-// Get the path element inside the SVG
+                    // Get the path element inside the SVG
                     const pathElement = selectedSVG.querySelector('path');
 
-// Change the fill color
+                    // Change the fill color
                     pathElement.setAttribute('fill', "'#FFFFFF';"); // Change to white (#00FF00)
                     console.log(softVolume)
                     //pathElement.setAttribute('fill', "rgb(" + softVolume250 + "," + volume250 + "," + volume255 + ")"); // Change to green (#00FF00)
@@ -302,15 +302,15 @@ export default function PlayerBar(props) {
                     break
                 case "Drums":
                     selectedSVG = document.getElementById(selectedOption);
-                    selectedSVG.style.transform = 'translate(-50%, -50%) scale(' + (1 + softVolume), (softVolume + 1) + ')'
+                    selectedSVG.style.transform = 'scale(' + (1 + softVolume), (softVolume + 1) + ')'
                     break
                 case "Keyboard":
                     selectedSVG = document.getElementById(selectedOption);
-                    selectedSVG.style.transform = 'translate(-50%, -50%) scale(' + (1 + softVolume), selectedSVG.style.transform = 'translate(-50%, -50%) scale(' + (1 + softVolume), (softVolume + 1) + ')'
+                    selectedSVG.style.transform = 'scale(' + (1 + softVolume), (softVolume + 1) + ')'
                     break
                 case "Saxophone":
                     selectedSVG = document.getElementById(selectedOption);
-                    selectedSVG.style.transform = 'translate(-50%, -50%) scale(' + (1 + softVolume), (softVolume + 1) + ')'
+                    selectedSVG.style.transform = 'scale(' + (1 + softVolume), (softVolume + 1) + ')'
                     break
             }
 
