@@ -4,7 +4,7 @@ import {
     drawEqualizerLine,
     drawFrameFrequencies
 } from "@/util/EqualizerUtil";
-import Gitarre from "@/components/svg/gitarre";
+import Guitar from "@/components/svg/guitar";
 
 let animationController
 export default function PlayerCanvas({getAnalyzer, selectedOption}) {
@@ -119,7 +119,7 @@ export default function PlayerCanvas({getAnalyzer, selectedOption}) {
                 {(() => {
                     switch (selectedOption) {
                         case "Gittare":
-                            return <Gitarre/>;
+                            return <Guitar/>;
                             break;
 
                     }

@@ -11,7 +11,10 @@ import {
 import {trimAudioBufferToMax} from "@/util/AudioBufferUtil";
 import {SpeakerWaveIcon, SpeakerXMarkIcon} from "@heroicons/react/20/solid";
 import EqualizerCanvas from "@/components/equalizerCanvas";
-import Gitarre from "@/components/svg/gitarre";
+import Guitar from "@/components/svg/guitar";
+import Drums from "@/components/svg/drums";
+import Saxophone from "@/components/svg/saxophone";
+import Keyboard from "@/components/svg/keyboard";
 
 let animationController;
 
@@ -268,7 +271,7 @@ export default function PlayerBar(props) {
             //------------
             switch (selectedOption) {
 
-                case "Gittare":
+                case "Guitar":
                     selectedSVG = document.getElementById(selectedOption);
                     selectedSVG.style.transform = 'translate(-50%, -50%) scale(' + (1 + softVolume), (softVolume + 1) + ')'
                     // Get the SVG element
@@ -304,7 +307,7 @@ export default function PlayerBar(props) {
                     selectedSVG = document.getElementById(selectedOption);
                     selectedSVG.style.transform = 'translate(-50%, -50%) scale(' + (1 + softVolume), selectedSVG.style.transform = 'translate(-50%, -50%) scale(' + (1 + softVolume), (softVolume + 1) + ')'
                     break
-                case "Saxaphone":
+                case "Saxophone":
                     selectedSVG = document.getElementById(selectedOption);
                     selectedSVG.style.transform = 'translate(-50%, -50%) scale(' + (1 + softVolume), (softVolume + 1) + ')'
                     break
@@ -351,7 +354,7 @@ export default function PlayerBar(props) {
                 <div className="col-span-1 flex justify-center">
                     <PassFilterKnob knobSize={48} onChangeCallback={changeLowPassFrequency}/>
                 </div>
-                <div className="col-span-5 flex justify-center flex-col">
+                <div className="col-span-5 flex justify-center flex-col gap-4">
                     <div className="flex justify-center">
                         <WaveformCanvas isPlaying={props.isPlaying}
                                         shouldDrawCursor={shouldDrawCursor}
@@ -375,9 +378,9 @@ export default function PlayerBar(props) {
             <div>
                 <select value={selectedOption} onChange={handleChange}>
                     <option value="">I donot want character, bitch</option>
-                    <option value="Gittare"> Gittare</option>
+                    <option value="Guitar"> Guitar</option>
                     <option value="Drums"> Drums</option>
-                    <option value="Saxaphone"> Saxaphone</option>
+                    <option value="Saxophone"> Saxophone</option>
                     <option value="Keyboard"> Keyboard</option>
                 </select>
                 <p>Selected Option: {selectedOption}</p>
@@ -394,8 +397,17 @@ export default function PlayerBar(props) {
                     </canvas>
                     {(() => {
                         switch (selectedOption) {
-                            case "Gittare":
-                                return <Gitarre/>;
+                            case "Guitar":
+                                return <Guitar/>;
+                                break;
+                            case "Drums":
+                                return <Drums/>;
+                                break;
+                            case "Saxophone":
+                                return <Saxophone/>;
+                                break;
+                            case "Keyboard":
+                                return <Keyboard/>;
                                 break;
 
                         }
