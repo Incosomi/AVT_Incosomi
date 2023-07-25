@@ -273,7 +273,8 @@ export default function PlayerBar(props) {
 
                 case "Guitar":
                     selectedSVG = document.getElementById(selectedOption);
-                    selectedSVG.style.transform = 'translate(-50%, -50%) scale(' + (1 + softVolume), (softVolume + 1) + ')'
+                    //selectedSVG.style.transform = 'translate(-50%, -50%) scale(' + (1 + softVolume), (softVolume + 1) + ')'
+                    selectedSVG.style.transform = 'scale(' + (1 + softVolume), (softVolume + 1) + ')'
                     // Get the SVG element
 
 
@@ -321,7 +322,7 @@ export default function PlayerBar(props) {
 
     return (
         <div className="relative">
-            <div className="border border-secondary border-2 py-2 rounded-md mb-2 grid grid-cols-9">
+            <div className="border border-secondary border-2 py-2 rounded-md mb-2 grid grid-cols-10">
                 <div className="col-span-1 flex justify-center">
                     <div className="flex flex-col gap-4">
                         <label id="import" className="h-auto btn btn-info" htmlFor={`file-input-${props.id}`}>
@@ -374,17 +375,17 @@ export default function PlayerBar(props) {
                                          setHighGain={setHighShelfGain}/>
                     </div>
                 </div>
+                <div className="col-span-1">
+                    <select value={selectedOption} onChange={handleChange}>
+                        <option value="">None</option>
+                        <option value="Guitar"> Guitar</option>
+                        <option value="Drums"> Drums</option>
+                        <option value="Saxophone"> Saxophone</option>
+                        <option value="Keyboard"> Keyboard</option>
+                    </select>
+                </div>
             </div>
-            <div>
-                <select value={selectedOption} onChange={handleChange}>
-                    <option value="">I donot want character, bitch</option>
-                    <option value="Guitar"> Guitar</option>
-                    <option value="Drums"> Drums</option>
-                    <option value="Saxophone"> Saxophone</option>
-                    <option value="Keyboard"> Keyboard</option>
-                </select>
-                <p>Selected Option: {selectedOption}</p>
-            </div>
+
             <div id="overlap"
                  className="absolute top-1/2 right-[-50%] transform -translate-x-1/2 -translate-y-1/2 p-2 rounded-md z-10">
 
