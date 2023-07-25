@@ -1,16 +1,20 @@
 import {useEffect, useRef, useState} from "react";
 import {FolderPlusIcon, TrashIcon} from "@heroicons/react/24/solid";
 import VolumeKnob from "@/components/knobs/volumeKnob";
-import PassFilterKnob from "@/components/knobs/passFilterKnob";
-import WaveformCanvas from "@/components/waveformCanvas";
+import WaveformCanvas from "@/components/canvases/waveformCanvas";
 import {
-    setupAudioSourceNode, setupConvolverNode,
-    setupHighShelfFilterNode, setupLowShelfFilterNode, setupPeakingFilterNode,
-    setupVolumeNode, startAudio
+    setupAudioSourceNode,
+    setupConvolverNode,
+    setupHighShelfFilterNode,
+    setupLowShelfFilterNode,
+    setupPeakingFilterNode,
+    setupVolumeNode,
+    startAudio
 } from "@/util/AudioNodeUtil";
 import {trimAudioBufferToMax} from "@/util/AudioBufferUtil";
 import {SpeakerWaveIcon, SpeakerXMarkIcon} from "@heroicons/react/20/solid";
-import EqualizerCanvas from "@/components/equalizerCanvas";
+import EqualizerCanvas from "@/components/canvases/equalizerCanvas";
+import ReverbDropdown from "@/components/reverbDropdown";
 import {StageCanvas} from "@/components/stage/stageCanvas";
 
 export default function PlayerBar(props) {
@@ -38,6 +42,7 @@ export default function PlayerBar(props) {
     const handleDelete = () => {
         audioSource.current.loop = false;
         audioSource.current.disconnect();
+        audioSource.current = null;
         props.deleteHandler();
     };
 
@@ -53,6 +58,11 @@ export default function PlayerBar(props) {
     const channel = 0;
 
     const handleSourceFileChange = (files) => {
+        if(audioSource.current != null){
+            audioSource.current.loop = false;
+            audioSource.current.disconnect();
+            audioSource.current = null;
+        }
         props.createAudioCtxHandler();
         let fileBlob = window.URL.createObjectURL(files[0]);
         setFileSource(fileBlob);
@@ -116,15 +126,57 @@ export default function PlayerBar(props) {
         lowShelfFilterNode.current = setupLowShelfFilterNode(props.getAudioCtxHandler(), lowShelf_Frequency);
         highShelfFilterNode.current = setupHighShelfFilterNode(props.getAudioCtxHandler(), highShelf_Frequency);
         peakingFilterNode.current = setupPeakingFilterNode(props.getAudioCtxHandler(), lowShelf_Frequency, highShelf_Frequency);
-        convolverNode.current = setupConvolverNode(props.getAudioCtxHandler());
         audioSource.current
             .connect(volumeNode.current)
             .connect(lowShelfFilterNode.current)
             .connect(peakingFilterNode.current)
             .connect(highShelfFilterNode.current)
             .connect(analyzer.current)
-            .connect(convolverNode.current)
             .connect(props.getAudioCtxHandler().destination);
+    }
+
+    const changeReverb = (newReverb) => {
+        let arrayBuffer;
+        switch (newReverb){
+            case "Simple":
+                arrayBuffer = null;
+                break;
+            case "Telephone":
+                arrayBuffer = props.getTelphoneIRBufferHandler();
+                break;
+            case "Spring":
+                arrayBuffer = props.getSpringIRBufferHandler();
+                break;
+            case "BrightHall":
+                arrayBuffer = props.getBrightHallIRBufferHandler();
+                break;
+            case "Echo":
+                arrayBuffer = props.getEchoIRBufferHandler();
+                break;
+            default:
+                disconnectReverbNode();
+                return;
+        }
+        createReverbNodeFromArrayBufferAndInsert(arrayBuffer)
+    }
+
+    const createReverbNodeFromArrayBufferAndInsert = (arrayBuffer) => {
+        convolverNode.current = setupConvolverNode(props.getAudioCtxHandler(), arrayBuffer);
+        connectReverbNode();
+    }
+
+    const connectReverbNode = () => {
+        highShelfFilterNode.current.disconnect({output: analyzer.current});
+        highShelfFilterNode.current
+            .connect(convolverNode.current)
+            .connect(analyzer.current);
+    }
+
+    const disconnectReverbNode = () => {
+        highShelfFilterNode.current.disconnect({output: convolverNode.current});
+        convolverNode.current.disconnect({output: analyzer.current});
+        highShelfFilterNode.current.connect(analyzer.current);
+        convolverNode.current = null;
     }
 
     const changeVolumeValue = (newVolume) => {
@@ -132,20 +184,10 @@ export default function PlayerBar(props) {
         volumeNode.current.gain.value = newVolume;
     }
 
-    const changeLowPassFrequency = (newFrequency) => {
-        if (lowShelfFilterNode.current == null) return;
-        lowShelfFilterNode.current.frequency.value = newFrequency;
-    }
-
-    const changeHighShelfFrequency = (newFrequency) => {
-        if (highShelfFilterNode.current == null) return;
-        highShelfFilterNode.current.frequency.value = newFrequency;
-    }
-
-
     const getLowShelfFrequency = () => {
         return lowShelfFilterNode.current.frequency.value;
     }
+
     const getLowShelfGain = () => {
         return lowShelfFilterNode.current.gain.value;
     }
@@ -187,7 +229,6 @@ export default function PlayerBar(props) {
         highShelfFilterNode.current.gain.value = newGain;
     }
 
-
     const getCurrentTime = () => {
         return props.getAudioCtxHandler().currentTime;
     }
@@ -226,34 +267,31 @@ export default function PlayerBar(props) {
                 <div className="flex justify-center">
                     <div className="flex flex-col gap-4">
                         <label id="import" className="h-auto btn btn-info" htmlFor={`file-input-${props.id}`}>
-                            <input id={`file-input-${props.id}`} type="file" style={{display: "none"}}
-                                   onChange={(e) => handleSourceFileChange(e.target.files)}/>
-                            <FolderPlusIcon className="h-6 w-6"/>
+                            <input id={`file-input-${props.id}`} type="file" style={{ display: "none" }} onChange={(e) => handleSourceFileChange(e.target.files)}/>
+                            <FolderPlusIcon className="h-6 w-6" />
                         </label>
-                        <button id="delete" className={`h-auto btn ${fileSource ? "btn-error" : "btn-disabled"}`}
-                                onClick={handleDelete}>
-                            <TrashIcon className="h-6 w-6"/>
+                        <button id="delete" className={`h-auto btn ${fileSource ? "btn-error" : "btn-disabled"}`} onClick={handleDelete}>
+                            <TrashIcon className="h-6 w-6" />
                         </button>
                     </div>
                 </div>
-                <div className="justify-center ">
+                <div className="col-span-1 justify-center ">
                     <div className="flex flex-col gap-4 items-center">
-                        <VolumeKnob knobSize={48} onChangeCallback={changeVolumeValue}/>
+                        <VolumeKnob knobSize={knobSize || 48} onChangeCallback={changeVolumeValue}/>
                         <div>
                             <button id="play"
                                     className={`h-auto btn ${fileSource ? "btn-info" : "btn-disabled"}`}
                                     onClick={handleMuteSwitch}>
-                                {isMuted ? <SpeakerXMarkIcon className="h-6 w-6"/> :
-                                    <SpeakerWaveIcon className="h-6 w-6"/>}
+                                {isMuted ? <SpeakerXMarkIcon className="h-6 w-6" /> : <SpeakerWaveIcon className="h-6 w-6" />}
                             </button>
                         </div>
                     </div>
                 </div>
-                <div className="flex justify-center">
-                    <PassFilterKnob knobSize={48} onChangeCallback={changeHighShelfFrequency}/>
+                <div className="col-span-1 flex justify-center">
+                    <VolumeKnob knobSize={knobSize || 48} onChangeCallback={changeVolumeValue}/>
                 </div>
-                <div className="flex justify-center">
-                    <PassFilterKnob knobSize={48} onChangeCallback={changeLowPassFrequency}/>
+                <div className="col-span-1 flex justify-center">
+                    <ReverbDropdown changeReverbHandler={changeReverb}/>
                 </div>
                 <div className="col-span-4 flex justify-center flex-col gap-4">
                     <div className="flex justify-center">
@@ -267,26 +305,22 @@ export default function PlayerBar(props) {
                     <div className="flex justify-center">
                         <EqualizerCanvas getAnalyzer={getAnalyzerNode}
                                          getFrameFrequencyData={getByteFrequencyData}
-                                         getLowFrequency={getLowShelfFrequency} getLowGain={getLowShelfGain}
-                                         setLowGain={setLowShelfGain}
-                                         getPeakingFrequency={getPeakingFrequency} getPeakingGain={getPeakingGain}
-                                         setPeakingGain={setPeakingGain}
-                                         getHighFrequency={getHighShelfFrequency} getHighGain={getHighShelfGain}
-                                         setHighGain={setHighShelfGain}/>
+                                         getLowFrequency={getLowShelfFrequency} getLowGain={getLowShelfGain} setLowGain={setLowShelfGain}
+                                         getPeakingFrequency={getPeakingFrequency} getPeakingGain={getPeakingGain} setPeakingGain={setPeakingGain}
+                                         getHighFrequency={getHighShelfFrequency} getHighGain={getHighShelfGain} setHighGain={setHighShelfGain}/>
                     </div>
-                </div>
-                <div className="col-span-1 flex flex-col justify-center ">
-                    <select className="select select-secondary" onChange={handleSelectedOptionChange}>
-                        <option selected={true} value="">None</option>
-                        <option value="Guitar">Guitar</option>
-                        <option value="Drums">Drums</option>
-                        <option value="Saxophone">Saxophone</option>
-                        <option value="Keyboard">Keyboard</option>
-                    </select>
+                    <div className="col-span-1 flex flex-col justify-center ">
+                        <select className="select select-secondary" onChange={handleSelectedOptionChange}>
+                            <option selected={true} value="">None</option>
+                            <option value="Guitar">Guitar</option>
+                            <option value="Drums">Drums</option>
+                            <option value="Saxophone">Saxophone</option>
+                            <option value="Keyboard">Keyboard</option>
+                        </select>
+                    </div>
                 </div>
             </div>
             <StageCanvas getAnalyzer={getAnalyzerNode} getSelectedOption={getSelectedOption}/>
         </div>
-
     );
 }

@@ -1,4 +1,5 @@
 import {calculatePeakingFrequency, calculatePeakingQFactor} from "@/util/EqualizerUtil";
+import {calcImpulseResponse_Simple, getImpulseResponse} from "@/util/ReverbCalculatorUtil";
 
 export function startAudio (isPlaying, audioSource, audioCtx, startTime) {
     if(!isPlaying)return 0;
@@ -43,20 +44,13 @@ export function setupHighShelfFilterNode(audioCtx, frequency) {
     return highShelfFilterNode;
 }
 
-export function setupConvolverNode(audioCtx){
-    let impulse = calcImpulseResponse(1, 2, audioCtx);
-    return new ConvolverNode(audioCtx, {buffer:impulse});
+export function setupConvolverNode(audioCtx, reverbType, arrayBuffer) {
+    let impulse;
+    if(arrayBuffer) {
+        impulse = getImpulseResponse(audioCtx, arrayBuffer);
+    }else {
+        impulse = calcImpulseResponse_Simple(1, 2, audioCtx);
+    }
+    return new ConvolverNode(audioCtx, {buffer: impulse});
 }
 
-function calcImpulseResponse(duration, decay, audioCtx){
-    let length =
-        audioCtx.sampleRate * duration;
-    let impulse =
-        audioCtx.createBuffer(1, length, audioCtx.sampleRate);
-    let ir =
-        impulse.getChannelData(0);
-    for (let i=0; i<length; i++){
-        ir[i] = (2 * Math.random() - 1) * Math.pow(1 - i / length, decay);
-    }
-    return impulse;
-}
