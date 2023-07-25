@@ -1,6 +1,6 @@
 export default function Guitar(){
     return (
-        <svg id="Guitar" className="absolute w-full h-full"
+        <svg id="Guitar" className="w-full h-full"
              viewBox="0 0 100 100" fill="none"
              xmlns="http://www.w3.org/2000/svg">
             <path

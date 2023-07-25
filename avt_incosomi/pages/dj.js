@@ -9,9 +9,9 @@ export default function DJTool() {
             <div className="flex flex-col w-[80%] ml-4">
                 <PlayerArea />
             </div>
-            <div className="flex my-auto flex-col">
+           {/* <div className="flex my-auto flex-col">
                 <StageArea />
-            </div>
+            </div>*/}
         </div>
     );
 }

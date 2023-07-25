@@ -15,6 +15,7 @@ import Guitar from "@/components/svg/guitar";
 import Drums from "@/components/svg/drums";
 import Saxophone from "@/components/svg/saxophone";
 import Keyboard from "@/components/svg/keyboard";
+import Image from "next/image";
 
 let animationController;
 
@@ -41,6 +42,9 @@ export default function PlayerBar(props) {
     const playerCanvas = useRef();
 
     const [selectedOption, setSelectedOption] = useState('');
+
+    const [randomPercentage, setRandomPercentage] = useState(() => getRandomPercentage());
+
 
     const handleChange = (event) => {
         setSelectedOption(event.target.value);
@@ -242,6 +246,13 @@ export default function PlayerBar(props) {
         return volume;
     }
 
+    function getRandomPercentage() {
+        const randomNumber = Math.floor(Math.random() * 13);
+        const randomStep = randomNumber * 10;
+        const randomValue = randomStep - 60;
+        return randomValue;
+    }
+
     const drawBandPlayer = () => {
 
         if (!props.isPlaying) return;
@@ -278,10 +289,10 @@ export default function PlayerBar(props) {
                     // Get the SVG element
 
 
-// Get the path element inside the SVG
+                    // Get the path element inside the SVG
                     const pathElement = selectedSVG.querySelector('path');
 
-// Change the fill color
+                    // Change the fill color
                     pathElement.setAttribute('fill', "'#FFFFFF';"); // Change to white (#00FF00)
                     console.log(softVolume)
                     //pathElement.setAttribute('fill', "rgb(" + softVolume250 + "," + volume250 + "," + volume255 + ")"); // Change to green (#00FF00)
@@ -302,15 +313,15 @@ export default function PlayerBar(props) {
                     break
                 case "Drums":
                     selectedSVG = document.getElementById(selectedOption);
-                    selectedSVG.style.transform = 'translate(-50%, -50%) scale(' + (1 + softVolume), (softVolume + 1) + ')'
+                    selectedSVG.style.transform = 'scale(' + (1 + softVolume), (softVolume + 1) + ')'
                     break
                 case "Keyboard":
                     selectedSVG = document.getElementById(selectedOption);
-                    selectedSVG.style.transform = 'translate(-50%, -50%) scale(' + (1 + softVolume), selectedSVG.style.transform = 'translate(-50%, -50%) scale(' + (1 + softVolume), (softVolume + 1) + ')'
+                    selectedSVG.style.transform = 'scale(' + (1 + softVolume), (softVolume + 1) + ')'
                     break
                 case "Saxophone":
                     selectedSVG = document.getElementById(selectedOption);
-                    selectedSVG.style.transform = 'translate(-50%, -50%) scale(' + (1 + softVolume), (softVolume + 1) + ')'
+                    selectedSVG.style.transform = 'scale(' + (1 + softVolume), (softVolume + 1) + ')'
                     break
             }
 
@@ -321,9 +332,9 @@ export default function PlayerBar(props) {
     };
 
     return (
-        <div className="relative">
-            <div className="border border-secondary border-2 py-2 rounded-md mb-2 grid grid-cols-10">
-                <div className="col-span-1 flex justify-center">
+        <div className="grid grid-cols-3">
+            <div className="col-span-2 border border-secondary border-2 py-2 rounded-md mb-2 grid grid-cols-10">
+                <div className="flex justify-center">
                     <div className="flex flex-col gap-4">
                         <label id="import" className="h-auto btn btn-info" htmlFor={`file-input-${props.id}`}>
                             <input id={`file-input-${props.id}`} type="file" style={{display: "none"}}
@@ -336,7 +347,7 @@ export default function PlayerBar(props) {
                         </button>
                     </div>
                 </div>
-                <div className="col-span-1 justify-center ">
+                <div className="justify-center ">
                     <div className="flex flex-col gap-4 items-center">
                         <VolumeKnob knobSize={48} onChangeCallback={changeVolumeValue}/>
                         <div>
@@ -349,13 +360,13 @@ export default function PlayerBar(props) {
                         </div>
                     </div>
                 </div>
-                <div className="col-span-1 flex justify-center">
+                <div className="flex justify-center">
                     <PassFilterKnob knobSize={48} onChangeCallback={changeHighShelfFrequency}/>
                 </div>
-                <div className="col-span-1 flex justify-center">
+                <div className="flex justify-center">
                     <PassFilterKnob knobSize={48} onChangeCallback={changeLowPassFrequency}/>
                 </div>
-                <div className="col-span-5 flex justify-center flex-col gap-4">
+                <div className="col-span-4 flex justify-center flex-col gap-4">
                     <div className="flex justify-center">
                         <WaveformCanvas isPlaying={props.isPlaying}
                                         shouldDrawCursor={shouldDrawCursor}
@@ -375,8 +386,8 @@ export default function PlayerBar(props) {
                                          setHighGain={setHighShelfGain}/>
                     </div>
                 </div>
-                <div className="col-span-1">
-                    <select value={selectedOption} onChange={handleChange}>
+                <div className="col-span-1 flex flex-col justify-center ">
+                    <select className="select select-secondary" value={selectedOption} onChange={handleChange}>
                         <option value="">None</option>
                         <option value="Guitar"> Guitar</option>
                         <option value="Drums"> Drums</option>
@@ -386,35 +397,54 @@ export default function PlayerBar(props) {
                 </div>
             </div>
 
-            <div id="overlap"
-                 className="absolute top-1/2 right-[-50%] transform -translate-x-1/2 -translate-y-1/2 p-2 rounded-md z-10">
-
-                <div className="w-32 h-32">
-                    <canvas id="stage"
-                            className="rounded-l-2xl absolute top-0 left-0 w-full h-full"
-                            ref={playerCanvas} style={{
-                        color: 'orange'
-                    }}>
-                    </canvas>
-                    {(() => {
-                        switch (selectedOption) {
-                            case "Guitar":
-                                return <Guitar/>;
-                                break;
-                            case "Drums":
-                                return <Drums/>;
-                                break;
-                            case "Saxophone":
-                                return <Saxophone/>;
-                                break;
-                            case "Keyboard":
-                                return <Keyboard/>;
-                                break;
-
-                        }
-                    })()}
+            <div className="flex flex-row relative">
+                <div id="background" className="flex flex-row">
+                    <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
+                    <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
+                    <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
+                    <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
+                    <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
+                    <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
+                    <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
                 </div>
+
+                <div
+                    id="overlap"
+                    className="absolute top-0 rounded-md z-10"
+                    style={{ right: `${randomPercentage}%` }}
+                >
+
+                    <div className="w-32 h-32">
+                        <canvas id="stage"
+                                className="rounded-l-2xl absolute w-full h-full"
+                                ref={playerCanvas} style={{
+                            color: 'orange'
+                        }}>
+                        </canvas>
+                        <div id="avatar" className="">
+                            {(() => {
+                                switch (selectedOption) {
+                                    case "Guitar":
+                                        return <Guitar/>;
+                                        break;
+                                    case "Drums":
+                                        return <Drums/>;
+                                        break;
+                                    case "Saxophone":
+                                        return <Saxophone/>;
+                                        break;
+                                    case "Keyboard":
+                                        return <Keyboard/>;
+                                        break;
+
+                                }
+                            })()}
+                        </div>
+                    </div>
+                </div>
+
             </div>
+
         </div>
 
     );

@@ -5,3 +5,10 @@
 th{
     @apply border border-slate-600;
 }
+
+#overlap {
+    cursor: grab;
+}
+#overlap:active {
+    cursor: grabbing;
+}
