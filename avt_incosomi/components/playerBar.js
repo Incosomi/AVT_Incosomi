@@ -11,13 +11,7 @@ import {
 import {trimAudioBufferToMax} from "@/util/AudioBufferUtil";
 import {SpeakerWaveIcon, SpeakerXMarkIcon} from "@heroicons/react/20/solid";
 import EqualizerCanvas from "@/components/equalizerCanvas";
-import Guitar from "@/components/svg/guitar";
-import Drums from "@/components/svg/drums";
-import Saxophone from "@/components/svg/saxophone";
-import Keyboard from "@/components/svg/keyboard";
-import Image from "next/image";
-
-let animationController;
+import {StageCanvas} from "@/components/stage/stageCanvas";
 
 export default function PlayerBar(props) {
 
@@ -39,16 +33,7 @@ export default function PlayerBar(props) {
 
     const startTime = useRef(-1);
 
-    const playerCanvas = useRef();
-
-    const [selectedOption, setSelectedOption] = useState('');
-
-    const [randomPercentage, setRandomPercentage] = useState(() => getRandomPercentage());
-
-
-    const handleChange = (event) => {
-        setSelectedOption(event.target.value);
-    };
+    const selectedOption = useRef("");
 
     const handleDelete = () => {
         audioSource.current.loop = false;
@@ -101,13 +86,10 @@ export default function PlayerBar(props) {
             .then(() => {
                 props.addPlayerBarHandler();
             });
-        console.log("Playerbar TimeOffSet: " + props.getMasterTimeOffsetHandler());
-        console.log("Current Time: " + props.getAudioCtxHandler().currentTime);
     };
 
     useEffect(() => {
         handlePlayPause(props.isPlaying);
-        drawBandPlayer();
     }, [props.isPlaying])
 
     const handlePlayPause = (shouldPlay) => {
@@ -230,110 +212,17 @@ export default function PlayerBar(props) {
         analyzer.current.getByteFrequencyData(songData);
     }
 
-    //TODO: refactor
-    function getVolumeSamples() {
-        const songData = new Uint8Array(128);
-        analyzer.current.getByteFrequencyData(songData);
-
-
-        let normalSamples = [...songData].map(e => e / 128 - 1);
-        let sum = 0;
-        for (let i = 0; i < normalSamples.length; i++) {
-// convert values between 1 and -1 to positive
-            sum += normalSamples[i] * normalSamples[i];
-        }
-        let volume = Math.sqrt(sum / normalSamples.length)
-        return volume;
-    }
-
-    function getRandomPercentage() {
-        const randomNumber = Math.floor(Math.random() * 13);
-        const randomStep = randomNumber * 10;
-        const randomValue = randomStep - 60;
-        return randomValue;
-    }
-
-    const drawBandPlayer = () => {
-
-        if (!props.isPlaying) return;
-        if (!analyzer.current) return;
-
-        // animationController = window.requestAnimationFrame(drawBandPlayer);
-        //if (audioRef.current === null) return cancelAnimationFrame(animationController);
-        //if (audioRef.current.paused) return cancelAnimationFrame(animationController);
-        console.log("i am in Band Player")
-        const songData = new Uint8Array(128);
-        analyzer.current.getByteFrequencyData(songData);
-
-        const volume = getVolumeSamples();
-        let softVolume = 0;
-        softVolume = softVolume * 0.7 + volume * 0.3;
-        //--------------
-        const bufferL = analyzer.current.frequencyBinCount / 2;
-
-        const ctx = playerCanvas.current.getContext("2d");
-        ctx.clearRect(0, 0, playerCanvas.current.width, playerCanvas.current.height);
-
-        let x;
-        let barWidth = 8;
-        let barHeight;
-        let selectedSVG;
-        for (let i = 0; i < bufferL; i++) {
-            //------------
-            switch (selectedOption) {
-
-                case "Guitar":
-                    selectedSVG = document.getElementById(selectedOption);
-                    //selectedSVG.style.transform = 'translate(-50%, -50%) scale(' + (1 + softVolume), (softVolume + 1) + ')'
-                    selectedSVG.style.transform = 'scale(' + (1 + softVolume), (softVolume + 1) + ')'
-                    // Get the SVG element
-
-
-                    // Get the path element inside the SVG
-                    const pathElement = selectedSVG.querySelector('path');
-
-                    // Change the fill color
-                    pathElement.setAttribute('fill', "'#FFFFFF';"); // Change to white (#00FF00)
-                    console.log(softVolume)
-                    //pathElement.setAttribute('fill', "rgb(" + softVolume250 + "," + volume250 + "," + volume255 + ")"); // Change to green (#00FF00)
-
-                    barHeight = songData[i] * 2;
-                    ctx.save();
-                    ctx.translate(playerCanvas.width / 2, playerCanvas.height / 2)
-                    ctx.rotate(i * 4.7)
-                    const hue = 120 + i * 0.7;
-
-                    ctx.fillStyle = 'hsl(' + hue + ', 100%,' + barHeight / 3 + '%)';
-                    ctx.beginPath();
-                    ctx.arc(0, barHeight / 2, barHeight / 2, 0, Math.PI / 8);
-                    ctx.fill();
-                    ctx.stroke();
-                    x += barWidth;
-                    ctx.restore();
-                    break
-                case "Drums":
-                    selectedSVG = document.getElementById(selectedOption);
-                    selectedSVG.style.transform = 'scale(' + (1 + softVolume), (softVolume + 1) + ')'
-                    break
-                case "Keyboard":
-                    selectedSVG = document.getElementById(selectedOption);
-                    selectedSVG.style.transform = 'scale(' + (1 + softVolume), (softVolume + 1) + ')'
-                    break
-                case "Saxophone":
-                    selectedSVG = document.getElementById(selectedOption);
-                    selectedSVG.style.transform = 'scale(' + (1 + softVolume), (softVolume + 1) + ')'
-                    break
-            }
-
-            //-----------------
-        }
-        ;
-        requestAnimationFrame(drawBandPlayer);
+    const handleSelectedOptionChange = (event) => {
+        selectedOption.current  = event.target.value;
     };
+
+    const getSelectedOption = () => {
+        return selectedOption.current;
+    }
 
     return (
         <div className="grid grid-cols-3">
-            <div className="col-span-2 border border-secondary border-2 py-2 rounded-md mb-2 grid grid-cols-10">
+            <div className="col-span-2 border border-secondary py-2 rounded-md mb-2 grid grid-cols-10">
                 <div className="flex justify-center">
                     <div className="flex flex-col gap-4">
                         <label id="import" className="h-auto btn btn-info" htmlFor={`file-input-${props.id}`}>
@@ -387,64 +276,16 @@ export default function PlayerBar(props) {
                     </div>
                 </div>
                 <div className="col-span-1 flex flex-col justify-center ">
-                    <select className="select select-secondary" value={selectedOption} onChange={handleChange}>
-                        <option value="">None</option>
-                        <option value="Guitar"> Guitar</option>
-                        <option value="Drums"> Drums</option>
-                        <option value="Saxophone"> Saxophone</option>
-                        <option value="Keyboard"> Keyboard</option>
+                    <select className="select select-secondary" onChange={handleSelectedOptionChange}>
+                        <option selected={true} value="">None</option>
+                        <option value="Guitar">Guitar</option>
+                        <option value="Drums">Drums</option>
+                        <option value="Saxophone">Saxophone</option>
+                        <option value="Keyboard">Keyboard</option>
                     </select>
                 </div>
             </div>
-
-            <div className="flex flex-row relative">
-                <div id="background" className="flex flex-row">
-                    <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
-                    <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
-                    <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
-                    <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
-                    <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
-                    <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
-                    <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
-                </div>
-
-                <div
-                    id="overlap"
-                    className="absolute top-0 rounded-md z-10"
-                    style={{ right: `${randomPercentage}%` }}
-                >
-
-                    <div className="w-32 h-32">
-                        <canvas id="stage"
-                                className="rounded-l-2xl absolute w-full h-full"
-                                ref={playerCanvas} style={{
-                            color: 'orange'
-                        }}>
-                        </canvas>
-                        <div id="avatar" className="">
-                            {(() => {
-                                switch (selectedOption) {
-                                    case "Guitar":
-                                        return <Guitar/>;
-                                        break;
-                                    case "Drums":
-                                        return <Drums/>;
-                                        break;
-                                    case "Saxophone":
-                                        return <Saxophone/>;
-                                        break;
-                                    case "Keyboard":
-                                        return <Keyboard/>;
-                                        break;
-
-                                }
-                            })()}
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
+            <StageCanvas getAnalyzer={getAnalyzerNode} getSelectedOption={getSelectedOption}/>
         </div>
 
     );
