@@ -229,13 +229,12 @@ export function StageCanvas({getAnalyzer, getSelectedOption}) {
     return (
         <div className="flex flex-row relative">
             <div id="background" className="flex flex-row">
-                <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
-                <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
-                <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
-                <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
-                <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
-                <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
-                <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
+                <Image src={"/flaeche_tile_600w.png"} alt="background" width={150} height={50}/>
+                <Image src={"/flaeche_tile_600w.png"} alt="background" width={150} height={50}/>
+                <Image src={"/flaeche_tile_600w.png"} alt="background" width={150} height={50}/>
+                <Image src={"/flaeche_tile_600w.png"} alt="background" width={150} height={50}/>
+                <Image src={"/flaeche_tile_600w.png"} alt="background" width={150} height={50}/>
+                <Image src={"/flaeche_tile_600w.png"} alt="background" width={150} height={50}/>
             </div>
             <div
                 id="overlap"
