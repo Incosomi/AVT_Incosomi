@@ -261,9 +261,11 @@ export default function PlayerBar(props) {
         return selectedOption.current;
     }
 
+
+
     return (
-        <div className="grid grid-cols-3">
-            <div className="col-span-2 border border-secondary py-2 rounded-md mb-2 grid grid-cols-10">
+        <div className="grid grid-cols-4">
+            <div className="col-span-2 border border-secondary border-2 py-2 rounded-md grid grid-cols-8">
                 <div className="flex justify-center">
                     <div className="flex flex-col gap-4">
                         <label id="import" className="h-auto btn btn-info" htmlFor={`file-input-${props.id}`}>
@@ -275,7 +277,7 @@ export default function PlayerBar(props) {
                         </button>
                     </div>
                 </div>
-                <div className="col-span-1 justify-center ">
+                <div className="justify-center">
                     <div className="flex flex-col gap-4 items-center">
                         <VolumeKnob knobSize={48} onChangeCallback={changeVolumeValue}/>
                         <div>
@@ -287,10 +289,7 @@ export default function PlayerBar(props) {
                         </div>
                     </div>
                 </div>
-                <div className="col-span-1 flex justify-center">
-                    <VolumeKnob knobSize={48} onChangeCallback={changeVolumeValue}/>
-                </div>
-                <div className="col-span-1 flex justify-center">
+                <div className="flex justify-center">
                     <ReverbDropdown changeReverbHandler={changeReverb}/>
                 </div>
                 <div className="col-span-4 flex justify-center flex-col gap-4">
@@ -309,15 +308,15 @@ export default function PlayerBar(props) {
                                          getPeakingFrequency={getPeakingFrequency} getPeakingGain={getPeakingGain} setPeakingGain={setPeakingGain}
                                          getHighFrequency={getHighShelfFrequency} getHighGain={getHighShelfGain} setHighGain={setHighShelfGain}/>
                     </div>
-                    <div className="col-span-1 flex flex-col justify-center ">
-                        <select className="select select-secondary" onChange={handleSelectedOptionChange}>
-                            <option selected={true} value="">None</option>
-                            <option value="Guitar">Guitar</option>
-                            <option value="Drums">Drums</option>
-                            <option value="Saxophone">Saxophone</option>
-                            <option value="Keyboard">Keyboard</option>
-                        </select>
-                    </div>
+                </div>
+                <div className="flex flex-col justify-center ">
+                    <select className="select select-secondary" onChange={handleSelectedOptionChange}>
+                        <option selected={true} value="">None</option>
+                        <option value="Guitar">Guitar</option>
+                        <option value="Drums">Drums</option>
+                        <option value="Saxophone">Saxophone</option>
+                        <option value="Keyboard">Keyboard</option>
+                    </select>
                 </div>
             </div>
             <StageCanvas getAnalyzer={getAnalyzerNode} getSelectedOption={getSelectedOption}/>

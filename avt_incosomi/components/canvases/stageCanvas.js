@@ -10,7 +10,6 @@ let animationController;
 export function StageCanvas({getAnalyzer, getSelectedOption}) {
 
     const canvasRef = useRef(null);
-    const [randomPercentage, setRandomPercentage] = useState(() => getRandomPercentage());
 
     useEffect(()=> {
        draw();
@@ -86,6 +85,42 @@ export function StageCanvas({getAnalyzer, getSelectedOption}) {
 
     const [svg, setSvg] = useState(<></>);
 
+    const [dragging, setDragging] = useState(false);
+    const [dragStartX, setDragStartX] = useState(0);
+    const [overlapDivLeft, setOverlapDivLeft] = useState(0);
+
+    const handleDragStart = (e) => {
+        setDragging(true);
+        setDragStartX(e.clientX);
+    };
+
+    const handleDrag = (e) => {
+        if (!dragging) return;
+        const offsetX = e.clientX - dragStartX;
+        const newLeft = Math.min(Math.max(overlapDivLeft + offsetX, 100), 700); // Restrict the range between -100 and 100
+        setOverlapDivLeft(newLeft);
+        setDragStartX(e.clientX);
+    };
+
+    const handleDragEnd = () => {
+        setDragging(false);
+    };
+
+    useEffect(() => {
+        if (dragging) {
+            window.addEventListener("mousemove", handleDrag);
+            window.addEventListener("mouseup", handleDragEnd);
+        } else {
+            window.removeEventListener("mousemove", handleDrag);
+            window.removeEventListener("mouseup", handleDragEnd);
+        }
+
+        return () => {
+            window.removeEventListener("mousemove", handleDrag);
+            window.removeEventListener("mouseup", handleDragEnd);
+        };
+    }, [dragging]);
+
     const renderSwitch = (option) => {
         switch (option){
             case "Guitar":
@@ -112,9 +147,12 @@ export function StageCanvas({getAnalyzer, getSelectedOption}) {
                 <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
                 <Image src={"/stage_tile_flaeche_01.png"} alt="background" width={150} height={50}/>
             </div>
-            <div id="overlap"
-                 className="absolute top-0 rounded-md z-10"
-                 style={{ right: `${randomPercentage}%` }}>
+            <div
+                id="overlap"
+                className="absolute top-0 rounded-md z-10"
+                style={{ left: `${overlapDivLeft}px` }} // Use overlapDivLeft to set the left position
+                onMouseDown={handleDragStart} // Start dragging when mouse down on the overlap div
+            >
                 <div className="w-32 h-32">
                     <canvas id="stage"
                             className="rounded-l-2xl absolute w-full h-full"
