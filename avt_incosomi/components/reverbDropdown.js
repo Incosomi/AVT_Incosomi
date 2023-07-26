@@ -20,7 +20,7 @@ export default function ReverbDropdown({ changeReverbHandler }) {
 
     return (
         <div className="flex flex-col justify-center">
-            <select className="select select-secondary" value={activeReverb} onChange={handleChange}>
+            <select className="select hover:border-black" value={activeReverb} onChange={handleChange}>
                 {reverbTypes.map((reverbType) => (
                     <option key={reverbType.value} value={reverbType.value}>
                         {reverbType.label}

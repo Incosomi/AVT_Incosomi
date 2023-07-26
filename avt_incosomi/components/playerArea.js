@@ -70,7 +70,7 @@ export default function PlayerArea({    getTelephoneIRBufferHandler,
     return (
         <div id="PlayerArea" className="grid grid-rows-1">
             <div className="grid grid-cols-4">
-                <div className="flex items-center col-span-2 grid grid-cols-8 rounded-md border-4 border-secondary text-center font-bold py-1 mt-1">
+                <div className="flex items-center col-span-2 grid grid-cols-8 rounded-md border-2 border-black text-center font-bold py-1 mt-1">
                     <div className=""></div>
                     <div className="">Vol</div>
                     <div className="">Reverb</div>
