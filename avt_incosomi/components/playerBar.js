@@ -277,7 +277,7 @@ export default function PlayerBar(props) {
                 </div>
                 <div className="col-span-1 justify-center ">
                     <div className="flex flex-col gap-4 items-center">
-                        <VolumeKnob knobSize={knobSize || 48} onChangeCallback={changeVolumeValue}/>
+                        <VolumeKnob knobSize={48} onChangeCallback={changeVolumeValue}/>
                         <div>
                             <button id="play"
                                     className={`h-auto btn ${fileSource ? "btn-info" : "btn-disabled"}`}
@@ -288,7 +288,7 @@ export default function PlayerBar(props) {
                     </div>
                 </div>
                 <div className="col-span-1 flex justify-center">
-                    <VolumeKnob knobSize={knobSize || 48} onChangeCallback={changeVolumeValue}/>
+                    <VolumeKnob knobSize={48} onChangeCallback={changeVolumeValue}/>
                 </div>
                 <div className="col-span-1 flex justify-center">
                     <ReverbDropdown changeReverbHandler={changeReverb}/>
