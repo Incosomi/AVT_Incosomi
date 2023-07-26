@@ -45,12 +45,12 @@ export function setupHighShelfFilterNode(audioCtx, frequency) {
 }
 
 export function setupConvolverNode(audioCtx, reverbType, arrayBuffer) {
-    let impulse;
+    let impulseResponse;
     if(arrayBuffer) {
-        impulse = getImpulseResponse(audioCtx, arrayBuffer);
+        impulseResponse = getImpulseResponse(audioCtx, arrayBuffer);
     }else {
-        impulse = calcImpulseResponse_Simple(1, 2, audioCtx);
+        impulseResponse = calcImpulseResponse_Simple(1, 2, audioCtx);
     }
-    return new ConvolverNode(audioCtx, {buffer: impulse});
+    return new ConvolverNode(audioCtx, {buffer: impulseResponse});
 }
 
