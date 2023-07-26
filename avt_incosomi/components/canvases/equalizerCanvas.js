@@ -1,9 +1,5 @@
 import {useEffect, useRef} from "react";
-import {
-    calculateNewGainValue,
-    drawEqualizerLine,
-    drawFrameFrequencies
-} from "@/util/EqualizerUtil";
+import {calculateNewGainValue, drawEqualizerLine, drawFrameFrequencies} from "@/util/EqualizerUtil";
 
 let animationController
 export default function EqualizerCanvas({getAnalyzer, getFrameFrequencyData,

@@ -4,7 +4,10 @@ import {PlayIcon} from "@heroicons/react/24/solid";
 import {PauseIcon} from "@heroicons/react/20/solid";
 import Image from "next/image";
 
-export default function PlayerArea() {
+export default function PlayerArea({    getTelephoneIRBufferHandler,
+                                        getSpringIRBufferHandler,
+                                        getBrightHallIRBufferHandler,
+                                       getEchoIRBufferHandler}) {
     const [barIds, setBarIds] = useState([]);
     const [lastBarId, setLastBarId] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -85,23 +88,25 @@ export default function PlayerArea() {
                     <Image src={"/stage_tile_scheinwerfer_01.png"} alt="background" width={150} height={50}/>
                 </div>
             </div>
-            <div>
-                {barIds.map((barId) => (
-                    <PlayerBar key={barId}
-                               id={barId}
-                               isPlaying={isPlaying}
-                               createAudioCtxHandler={createAudioCtx}
-                               getAudioCtxHandler={getAudioCtx}
-                               getMasterDurationHandler={getMasterDuration}
-                               setMasterDurationHandler={setMasterDuration}
-                               getMasterTimeOffsetHandler={getMasterTimeOffset}
-                               setMasterTimeOffsetHandler={setMasterTimeOffset}
-                               getStartTimeHandler={getStartTime}
-                               addPlayerBarHandler={handleAddPlayerBar}
-                               deleteHandler={() => handleDeletePlayerBar(barId)}/>
-                ))}
-            </div>
-            <button id="play" className="h-auto btn btn-success col-span-1" onClick={handlePlayPauseSwitch} >
+            {barIds.map((barId) => (
+                <PlayerBar key={barId}
+                           id={barId}
+                           isPlaying={isPlaying}
+                           createAudioCtxHandler={createAudioCtx}
+                           getAudioCtxHandler={getAudioCtx}
+                           getTelphoneIRBufferHandler={getTelephoneIRBufferHandler}
+                           getSpringIRBufferHandler={getSpringIRBufferHandler}
+                           getBrightHallIRBufferHandler={getBrightHallIRBufferHandler}
+                           getEchoIRBufferHandler={getEchoIRBufferHandler}
+                           getMasterDurationHandler={getMasterDuration}
+                           setMasterDurationHandler={setMasterDuration}
+                           getMasterTimeOffsetHandler={getMasterTimeOffset}
+                           setMasterTimeOffsetHandler={setMasterTimeOffset}
+                           getStartTimeHandler={getStartTime}
+                           addPlayerBarHandler={handleAddPlayerBar}
+                           deleteHandler={() => handleDeletePlayerBar(barId)}/>
+            ))}
+            <button id="play" className="h-auto btn btn-success" onClick={handlePlayPauseSwitch} >
                 {isPlaying ? <PauseIcon className="h-6 w-6" /> : <PlayIcon className="h-6 w-6" />}
             </button>
         </div>
