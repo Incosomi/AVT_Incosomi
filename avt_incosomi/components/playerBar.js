@@ -15,7 +15,7 @@ import {trimAudioBufferToMax} from "@/util/AudioBufferUtil";
 import {SpeakerWaveIcon, SpeakerXMarkIcon} from "@heroicons/react/20/solid";
 import EqualizerCanvas from "@/components/canvases/equalizerCanvas";
 import ReverbDropdown from "@/components/reverbDropdown";
-import {StageCanvas} from "@/components/stage/stageCanvas";
+import {StageCanvas} from "@/components/canvases/stageCanvas";
 
 export default function PlayerBar(props) {
 
@@ -117,7 +117,7 @@ export default function PlayerBar(props) {
     }
 
     const lowShelf_Frequency = 2500;
-    const highShelf_Frequency = 10000;
+    const highShelf_Frequency = 9000;
 
     const setupAndConnectNodes = () => {
         audioSource.current = setupAudioSourceNode(props.getAudioCtxHandler(), audioBuffer.current);

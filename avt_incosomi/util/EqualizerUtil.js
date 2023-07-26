@@ -37,10 +37,24 @@ export function drawEqualizerLine(canvasCtx,
 
     canvasCtx.beginPath();
     canvasCtx.moveTo(0, canvasHeightMiddle - lowshelf_Gain);
-    canvasCtx.lineTo(lowshelf_Frequency * hzToPixelRation, canvasHeightMiddle);
-    canvasCtx.lineTo(peaking_Frequency * hzToPixelRation, canvasHeightMiddle - peaking_Gain);
-    canvasCtx.lineTo(highshelf_Frequency * hzToPixelRation, canvasHeightMiddle);
-    canvasCtx.lineTo(width, canvasHeightMiddle - highshelf_Gain);
+    canvasCtx.quadraticCurveTo(0, canvasHeightMiddle, lowshelf_Frequency * hzToPixelRation, canvasHeightMiddle);
+
+    let lowShelfLocation = lowshelf_Frequency * hzToPixelRation;
+    let peakingLocation = peaking_Frequency * hzToPixelRation;
+    let middleBetweenLowShelfAndPeaking = lowShelfLocation + ( (peakingLocation - lowShelfLocation ) / 2);
+    canvasCtx.bezierCurveTo(
+        middleBetweenLowShelfAndPeaking, canvasHeightMiddle,
+        middleBetweenLowShelfAndPeaking, canvasHeightMiddle - peaking_Gain,
+        peaking_Frequency * hzToPixelRation, canvasHeightMiddle - peaking_Gain);
+
+    let highShelfLocation = highshelf_Frequency * hzToPixelRation;
+    let middleBetweenPeakingAndHighShelf = peakingLocation + ((highShelfLocation - peakingLocation) / 2);
+    canvasCtx.bezierCurveTo(
+        middleBetweenPeakingAndHighShelf, canvasHeightMiddle - peaking_Gain,
+        middleBetweenPeakingAndHighShelf, canvasHeightMiddle,
+        highshelf_Frequency * hzToPixelRation, canvasHeightMiddle);
+
+    canvasCtx.quadraticCurveTo(width, canvasHeightMiddle, width, canvasHeightMiddle - highshelf_Gain);
 
     canvasCtx.font = "8.5px Arial";
     canvasCtx.fillStyle = "blue";
