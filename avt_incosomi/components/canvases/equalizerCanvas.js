@@ -77,7 +77,7 @@ export default function EqualizerCanvas({getAnalyzer, getFrameFrequencyData,
 
     return(
         <>
-            <canvas id="equalizer" className="rounded-2xl border border-black bg-orange-400" ref={canvasRef} width={200} height={53}/>
+            <canvas id="equalizer" className="rounded-2xl border border-black bg-orange-400 hover:border-white" ref={canvasRef} width={200} height={53}/>
         </>
     );
 }

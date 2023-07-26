@@ -70,7 +70,7 @@ export default function PlayerArea({    getTelephoneIRBufferHandler,
     return (
         <div id="PlayerArea" className="grid grid-rows-1">
             <div className="grid grid-cols-4">
-                <div className="flex items-center col-span-2 grid grid-cols-8 ounded-md border border-4 border-secondary text-center font-bold py-1 mt-1">
+                <div className="flex items-center col-span-2 grid grid-cols-8 rounded-md border-2 border-black text-center font-bold py-1 mt-1">
                     <div className=""></div>
                     <div className="">Vol</div>
                     <div className="">Reverb</div>
@@ -78,36 +78,41 @@ export default function PlayerArea({    getTelephoneIRBufferHandler,
                     <div className="">Avatar</div>
                 </div>
                 <div className="flex flex-row">
-                    <Image src={"/stage_tile_scheinwerfer_01.png"} alt="background" width={150} height={50}/>
-                    <Image src={"/stage_tile_scheinwerfer_01.png"} alt="background" width={150} height={50}/>
-                    <Image src={"/stage_tile_scheinwerfer_01.png"} alt="background" width={150} height={50}/>
-                    <Image src={"/stage_tile_scheinwerfer_01.png"} alt="background" width={150} height={50}/>
-                    <Image src={"/stage_tile_scheinwerfer_01.png"} alt="background" width={150} height={50}/>
-                    <Image src={"/stage_tile_scheinwerfer_01.png"} alt="background" width={150} height={50}/>
-                    <Image src={"/stage_tile_scheinwerfer_01.png"} alt="background" width={150} height={50}/>
+                    <Image src={"/spotlight_tile_600w.png"} alt="background" width={150} height={50}/>
+                    <Image src={"/spotlight_tile_600w.png"} alt="background" width={150} height={50}/>
+                    <Image src={"/spotlight_tile_600w.png"} alt="background" width={150} height={50}/>
+                    <Image src={"/spotlight_tile_600w.png"} alt="background" width={150} height={50}/>
+                    <Image src={"/spotlight_tile_600w.png"} alt="background" width={150} height={50}/>
+                    <Image src={"/spotlight_tile_600w.png"} alt="background" width={150} height={50}/>
                 </div>
             </div>
-            {barIds.map((barId) => (
-                <PlayerBar key={barId}
-                           id={barId}
-                           isPlaying={isPlaying}
-                           createAudioCtxHandler={createAudioCtx}
-                           getAudioCtxHandler={getAudioCtx}
-                           getTelphoneIRBufferHandler={getTelephoneIRBufferHandler}
-                           getSpringIRBufferHandler={getSpringIRBufferHandler}
-                           getBrightHallIRBufferHandler={getBrightHallIRBufferHandler}
-                           getEchoIRBufferHandler={getEchoIRBufferHandler}
-                           getMasterDurationHandler={getMasterDuration}
-                           setMasterDurationHandler={setMasterDuration}
-                           getMasterTimeOffsetHandler={getMasterTimeOffset}
-                           setMasterTimeOffsetHandler={setMasterTimeOffset}
-                           getStartTimeHandler={getStartTime}
-                           addPlayerBarHandler={handleAddPlayerBar}
-                           deleteHandler={() => handleDeletePlayerBar(barId)}/>
-            ))}
-            <button id="play" className="h-auto btn btn-success" onClick={handlePlayPauseSwitch} >
-                {isPlaying ? <PauseIcon className="h-6 w-6" /> : <PlayIcon className="h-6 w-6" />}
-            </button>
+            <div className="flex flex-col justify-center">
+                {barIds.map((barId) => (
+                    <PlayerBar key={barId}
+                               id={barId}
+                               isPlaying={isPlaying}
+                               createAudioCtxHandler={createAudioCtx}
+                               getAudioCtxHandler={getAudioCtx}
+                               getTelphoneIRBufferHandler={getTelephoneIRBufferHandler}
+                               getSpringIRBufferHandler={getSpringIRBufferHandler}
+                               getBrightHallIRBufferHandler={getBrightHallIRBufferHandler}
+                               getEchoIRBufferHandler={getEchoIRBufferHandler}
+                               getMasterDurationHandler={getMasterDuration}
+                               setMasterDurationHandler={setMasterDuration}
+                               getMasterTimeOffsetHandler={getMasterTimeOffset}
+                               setMasterTimeOffsetHandler={setMasterTimeOffset}
+                               getStartTimeHandler={getStartTime}
+                               addPlayerBarHandler={handleAddPlayerBar}
+                               deleteHandler={() => handleDeletePlayerBar(barId)}/>
+                ))}
+                <div className="flex justify-center">
+                    <button id="play" className="h-auto btn btn-success w-72 mt-4" onClick={handlePlayPauseSwitch} >
+                        {isPlaying ? <PauseIcon className="h-6 w-6" /> : <PlayIcon className="h-6 w-6" />}
+                    </button>
+                </div>
+
+            </div>
+
         </div>
     );
 }
