@@ -70,13 +70,12 @@ export default function PlayerArea({    getTelephoneIRBufferHandler,
     return (
         <div id="PlayerArea" className="grid grid-rows-1">
             <div className="grid grid-cols-4">
-                <div className="flex items-center col-span-2 grid grid-cols-10 rounded-md border border-4 border-secondary text-center font-bold py-1 mt-1">
-                    <div className="col-span-1"></div>
-                    <div className="col-span-1">Vol</div>
-                    <div className="col-span-1 ">High</div>
-                    <div className="col-span-1">Low</div>
+                <div className="flex items-center col-span-2 grid grid-cols-8 rounded-md border border-4 border-secondary text-center font-bold py-1 mt-1">
+                    <div className=""></div>
+                    <div className="">Vol</div>
+                    <div className="">Reverb</div>
                     <div className="col-span-4">Waveform</div>
-                    <div className="col-span-1">Avatar</div>
+                    <div className="">Avatar</div>
                 </div>
                 <div className="flex flex-row">
                     <Image src={"/stage_tile_scheinwerfer_01.png"} alt="background" width={150} height={50}/>

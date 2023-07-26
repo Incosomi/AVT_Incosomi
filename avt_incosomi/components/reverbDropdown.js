@@ -1,31 +1,32 @@
-import {useRef} from "react";
+import { useState } from "react";
 
-export default function ReverbDropdown({changeReverbHandler}){
-
-    const activeReverb = useRef(null);
+export default function ReverbDropdown({ changeReverbHandler }) {
+    const [activeReverb, setActiveReverb] = useState("None");
 
     const reverbTypes = [
-        {id: "0", type:"None"},
-        {id: "1", type:"Simple"},
-        {id: "2", type:"Telephone"},
-        {id: "3", type:"Spring"},
-        {id: "4", type:"BrightHall"},
-        {id: "5", type:"Echo"}
+        { value: "None", label: "None" },
+        { value: "Simple", label: "Simple" },
+        { value: "Telephone", label: "Telephone" },
+        { value: "Spring", label: "Spring" },
+        { value: "BrightHall", label: "BrightHall" },
+        { value: "Echo", label: "Echo" },
     ];
 
-    const handleClick = (type) => {
-        changeReverbHandler(type);
-        activeReverb.current = type;
-    }
+    const handleChange = (event) => {
+        const selectedReverb = event.target.value;
+        changeReverbHandler(selectedReverb);
+        setActiveReverb(selectedReverb);
+    };
 
     return (
-        <div className="dropdown dropdown-hover mb-32">
-            <label className="m-1 btn">{activeReverb.current? activeReverb.current : "Reverb"}</label>
-            <ul className="p-2 shadow menu dropdown-content z-[1] bg-base-100 rounded-box w-35">
-                {reverbTypes.map(function (reverbType){
-                    return(<li key={reverbType.id}><a onClick={() => handleClick(reverbType.type)}>{reverbType.type}</a></li>);
-                })}
-            </ul>
+        <div className="flex flex-col justify-center">
+            <select className="select select-secondary" value={activeReverb} onChange={handleChange}>
+                {reverbTypes.map((reverbType) => (
+                    <option key={reverbType.value} value={reverbType.value}>
+                        {reverbType.label}
+                    </option>
+                ))}
+            </select>
         </div>
     );
 }
