@@ -261,9 +261,45 @@ export default function PlayerBar(props) {
         return selectedOption.current;
     }
 
+    const [dragging, setDragging] = useState(false);
+    const [dragStartX, setDragStartX] = useState(0);
+    const [overlapDivLeft, setOverlapDivLeft] = useState(0);
+
+    const handleDragStart = (e) => {
+        setDragging(true);
+        setDragStartX(e.clientX);
+    };
+
+    const handleDrag = (e) => {
+        if (!dragging) return;
+        const offsetX = e.clientX - dragStartX;
+        const newLeft = Math.min(Math.max(overlapDivLeft + offsetX, 100), 700); // Restrict the range between -100 and 100
+        setOverlapDivLeft(newLeft);
+        setDragStartX(e.clientX);
+    };
+
+    const handleDragEnd = () => {
+        setDragging(false);
+    };
+
+    useEffect(() => {
+        if (dragging) {
+            window.addEventListener("mousemove", handleDrag);
+            window.addEventListener("mouseup", handleDragEnd);
+        } else {
+            window.removeEventListener("mousemove", handleDrag);
+            window.removeEventListener("mouseup", handleDragEnd);
+        }
+
+        return () => {
+            window.removeEventListener("mousemove", handleDrag);
+            window.removeEventListener("mouseup", handleDragEnd);
+        };
+    }, [dragging]);
+
     return (
-        <div className="grid grid-cols-3">
-            <div className="col-span-2 border border-secondary py-2 rounded-md mb-2 grid grid-cols-10">
+        <div className="grid grid-cols-4">
+            <div className="col-span-2 border border-secondary border-2 py-2 rounded-md grid grid-cols-10">
                 <div className="flex justify-center">
                     <div className="flex flex-col gap-4">
                         <label id="import" className="h-auto btn btn-info" htmlFor={`file-input-${props.id}`}>

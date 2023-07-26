@@ -49,7 +49,7 @@ export default function DJTool() {
         <>
             {isLoading ? <span className="loading loading-dots loading-lg"></span> :
                 <div className="bg-info/30 w-screen h-screen flex">
-                    <div className="flex flex-col w-[80%] ml-4">
+                    <div className="flex flex-col ml-4">
                         <PlayerArea
                             getTelephoneIRBufferHandler={getTelephoneImpRes_Buffer}
                             getSpringIRBufferHandler={getSpringImpRes_Buffer}
