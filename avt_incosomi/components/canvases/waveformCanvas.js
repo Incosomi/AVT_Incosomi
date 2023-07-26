@@ -1,105 +1,86 @@
-import {forwardRef, useEffect, useImperativeHandle, useRef} from "react";
+import {useEffect, useRef} from "react";
+import {calcCursorPosition} from "@/util/WaveformCanvasUtil";
 
 let animationController;
 
-const WaveformCanvas = forwardRef(
-    function WaveformCanvas({isPlaying, shouldDrawCursor, getCurrentTime, getTimeOffSet, getMaxDuration}, ref) {
-        const canvasBgColor = '#f5980a';
-        const waveformColor = '#607aee';
-        const cursorColor = '#000000';
+export function WaveformCanvas({
+                                   shouldDrawCursor,
+                                   getTrimmedChannelData,
+                                   getCurrentTime,
+                                   getTimeOffSet,
+                                   getMaxDuration
+                               }) {
+    const canvasBgColor = '#f5980a';
+    const waveformColor = '#607aee';
+    const cursorColor = '#000000';
 
-        const canvasRef = useRef(null);
-        const canvasCtx = useRef(null);
-        const canvasWidth = useRef(0);
-        const canvasHeight = useRef(0);
+    const canvasRef = useRef(null);
+    const canvasCtx = useRef(null);
+    const canvasWidth = useRef(0);
+    const canvasHeight = useRef(0);
 
-        const waveformImgData = useRef(null);
-        const startedPlaying = useRef(false);
+    const waveformImgData = useRef(null);
 
-        useEffect(() => {
-            canvasCtx.current = canvasRef.current.getContext("2d");
-            canvasWidth.current = canvasRef.current.clientWidth;
-            canvasHeight.current = canvasRef.current.clientHeight;
-        },[]);
+    useEffect(() => {
+        canvasWidth.current = canvasRef.current.width;
+        canvasHeight.current = canvasRef.current.height;
+        draw();
+    }, [])
 
-        useImperativeHandle(ref, () => {
-            return{
-                drawWaveForm(trimmedChannelData) {
-                    drawWaveformImpl(trimmedChannelData);
-                }
-            };
-        },[]);
-
-        useEffect(() => {
-            if(isPlaying && !startedPlaying.current){
-                animateWaveformCursor();
-            }
-        },[isPlaying])
-
-        const drawWaveformImpl = (trimmedChannelData) => {
-            canvasCtx.current.fillStyle = canvasBgColor;
-            canvasCtx.current.fillRect(0, 0, canvasWidth.current, canvasHeight.current);
-            canvasCtx.current.fillStyle  = waveformColor;
-
-            const chunkSize = Math.max(1, Math.floor(trimmedChannelData.length / canvasWidth.current));
-
-            for (let x = 0; x < canvasWidth.current; x++) {
-                const start = x * chunkSize;
-                const end = start + chunkSize;
-                const chunk = trimmedChannelData.slice(start, end);
-                let positive = 0;
-                let negative = 0;
-                chunk.forEach(val => {
-                    if (val > 0) positive += val;
-                    if (val < 0) negative += val;
-                });
-
-                negative /= chunk.length;//mittelwert der positiven ausschlaege
-                positive /= chunk.length;//mittelwert der negativen ausschlaege
-                let chunkAmp = positive - negative;
-                let rectHeight = Math.max(1, chunkAmp * canvasHeight.current)*10;
-                let y = canvasHeight.current / 2 - rectHeight / 2;
-                canvasCtx.current.fillRect(x, y, 1, rectHeight);
-            }
-            waveformImgData.current = canvasCtx.current.getImageData(0, 0, canvasWidth.current, canvasHeight.current);
+    const draw = () => {
+        animationController = window.requestAnimationFrame(draw);
+        if (canvasRef.current === null) return cancelAnimationFrame(animationController);
+        canvasCtx.current = canvasRef.current.getContext("2d");
+        if (waveformImgData.current == null) {
+            let trimmedChannelData = getTrimmedChannelData();
+            if (trimmedChannelData == null) return;
+            waveformImgData.current =
+                drawWaveformImpl(trimmedChannelData, canvasCtx.current, canvasWidth.current, canvasHeight.current);
         }
+        if (!shouldDrawCursor()) return;
+        drawWaveformCursor(waveformImgData.current, canvasCtx.current, canvasWidth.current, canvasHeight.current);
+    }
 
-        const animateWaveformCursor = () => {
-            animationController = window.requestAnimationFrame(animateWaveformCursor);
-            if (canvasRef.current === null) return cancelAnimationFrame(animationController);
-            if (waveformImgData.current === null) return;
-            if(!shouldDrawCursor()) return;
+    const drawWaveformImpl = (trimmedChannelData, canvasCtx, canvasWidth, canvasHeight) => {
+        canvasCtx.fillStyle = canvasBgColor;
+        canvasCtx.fillRect(0, 0, canvasWidth, canvasHeight);
+        canvasCtx.fillStyle = waveformColor;
 
-            let cursorPos = calcCursorPosition(canvasRef.current.clientWidth);
+        const chunkSize = Math.max(1, Math.floor(trimmedChannelData.length / canvasWidth));
 
-            const canvasCtx = canvasRef.current.getContext('2d');
+        for (let x = 0; x < canvasWidth; x++) {
+            const start = x * chunkSize;
+            const end = start + chunkSize;
+            const chunk = trimmedChannelData.slice(start, end);
+            let positive = 0;
+            let negative = 0;
+            chunk.forEach(val => {
+                if (val > 0) positive += val;
+                if (val < 0) negative += val;
+            });
 
-            createImageBitmap(waveformImgData.current)
-                .then(image => canvasCtx.drawImage(image, 0, 0));
-
-            canvasCtx.fillStyle = cursorColor;
-            canvasCtx.fillRect(cursorPos, 0, 1, canvasRef.current.clientHeight);
+            negative /= chunk.length;//mittelwert der positiven ausschlaege
+            positive /= chunk.length;//mittelwert der negativen ausschlaege
+            let chunkAmp = positive - negative;
+            let rectHeight = Math.max(1, chunkAmp * canvasHeight) * 10;
+            let y = canvasHeight / 2 - rectHeight / 2;
+            canvasCtx.fillRect(x, y, 1, rectHeight);
         }
+        return canvasCtx.getImageData(0, 0, canvasWidth, canvasHeight);
+    }
 
-        const calcCursorPosition = (canvasWidth) => {
-            const maxDuration = getMaxDuration();
-            const currentTime = getCurrentTime();
-            const currentTimeOffSet = getTimeOffSet();
-            const currentTimeToPixelLocationFactor = calcCurrentTimeToPixelLocationFactor(maxDuration, canvasWidth);
-            const contextTimeWithoutOffset = currentTime - currentTimeOffSet;
-            const currentBufferTime = contextTimeWithoutOffset - (Math.floor(contextTimeWithoutOffset / getMaxDuration()) * getMaxDuration());
-            return Math.floor(currentBufferTime / currentTimeToPixelLocationFactor);
-        }
+    const drawWaveformCursor = (waveformImgData, canvasCtx, canvasWidth, canvasHeight) => {
+        let cursorPos = calcCursorPosition(getMaxDuration(), getCurrentTime(), getTimeOffSet(), canvasWidth);
 
-        const calcCurrentTimeToPixelLocationFactor = (duration, width) => {
-            let pixelPerSec = width/duration;
-            let pixelPerMilliSec = pixelPerSec/10;
-            return 0.1 / pixelPerMilliSec;
-        }
+        createImageBitmap(waveformImgData)
+            .then(image => canvasCtx.drawImage(image, 0, 0));
 
-        return (
-                <canvas id="waveform" className="rounded-2xl border border-black bg-orange-400" ref={canvasRef} width={200} height={53} />
-        );
-    });
+        canvasCtx.fillStyle = cursorColor;
+        canvasCtx.fillRect(cursorPos, 0, 1, canvasHeight);
+    }
 
-export default WaveformCanvas;
+    return (
+        <canvas id="waveform" className="rounded-2xl border border-black bg-orange-400" ref={canvasRef} width={200}
+                height={53}/>
+    );
+}

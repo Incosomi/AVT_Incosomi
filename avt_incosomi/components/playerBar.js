@@ -1,7 +1,7 @@
 import {useEffect, useRef, useState} from "react";
 import {FolderPlusIcon, TrashIcon} from "@heroicons/react/24/solid";
 import VolumeKnob from "@/components/knobs/volumeKnob";
-import WaveformCanvas from "@/components/canvases/waveformCanvas";
+import {WaveformCanvas} from "@/components/canvases/waveformCanvas";
 import {
     setupAudioSourceNode,
     setupConvolverNode,
@@ -18,8 +18,6 @@ import ReverbDropdown from "@/components/reverbDropdown";
 import {StageCanvas} from "@/components/canvases/stageCanvas";
 
 export default function PlayerBar(props) {
-
-    const waveformCanvasRef = useRef(WaveformCanvas);
 
     const [isMuted, setIsMuted] = useState(false);
     const [fileSource, setFileSource] = useState(null);
@@ -58,12 +56,13 @@ export default function PlayerBar(props) {
     const channel = 0;
 
     const handleSourceFileChange = (files) => {
-        if(audioSource.current != null){
+        if (audioSource.current != null) {
             audioSource.current.loop = false;
             audioSource.current.disconnect();
             audioSource.current = null;
         }
         props.createAudioCtxHandler();
+        if (fileSource == null) props.addPlayerBarHandler();
         let fileBlob = window.URL.createObjectURL(files[0]);
         setFileSource(fileBlob);
         fetch(fileBlob)
@@ -79,22 +78,19 @@ export default function PlayerBar(props) {
                     return trimAudioBufferToMax(audioBuffer.current, props.getMasterDurationHandler(), channel);
                 }
             })
-            .then(channelData => {
+            .then(trimmedChannelData => {
                 audioBuffer.current = new AudioBuffer({
-                    length: channelData.length,
+                    length: trimmedChannelData.length,
                     sampleRate: audioBuffer.current.sampleRate,
                     numberOfChannels: audioBuffer.current.numberOfChannels
                 });
-                audioBuffer.current.copyToChannel(channelData, channel);
-                waveformCanvasRef.current.drawWaveForm(channelData);
+                audioBuffer.current.copyToChannel(trimmedChannelData, channel);
+                channelData.current = trimmedChannelData;
             })
             .then(() => {
                 setupAndConnectNodes();
                 if (startTime.current < 0) startTime.current = props.getStartTimeHandler();
                 timeOffSet.current = startAudio(props.isPlaying, audioSource.current, props.getAudioCtxHandler(), startTime.current);
-            })
-            .then(() => {
-                props.addPlayerBarHandler();
             });
     };
 
@@ -135,48 +131,24 @@ export default function PlayerBar(props) {
             .connect(props.getAudioCtxHandler().destination);
     }
 
-    const changeReverb = (newReverb) => {
-        let arrayBuffer;
-        switch (newReverb){
-            case "Simple":
-                arrayBuffer = null;
-                break;
-            case "Telephone":
-                arrayBuffer = props.getTelphoneIRBufferHandler();
-                break;
-            case "Spring":
-                arrayBuffer = props.getSpringIRBufferHandler();
-                break;
-            case "BrightHall":
-                arrayBuffer = props.getBrightHallIRBufferHandler();
-                break;
-            case "Echo":
-                arrayBuffer = props.getEchoIRBufferHandler();
-                break;
-            default:
-                disconnectReverbNode();
-                return;
-        }
-        createReverbNodeFromArrayBufferAndInsert(arrayBuffer)
+    const getChannelData = () => {
+        return channelData.current;
     }
 
-    const createReverbNodeFromArrayBufferAndInsert = (arrayBuffer) => {
-        convolverNode.current = setupConvolverNode(props.getAudioCtxHandler(), arrayBuffer);
-        connectReverbNode();
+    const shouldDrawCursor = () => {
+        return startTime.current <= props.getAudioCtxHandler().currentTime;
     }
 
-    const connectReverbNode = () => {
-        highShelfFilterNode.current.disconnect({output: analyzer.current});
-        highShelfFilterNode.current
-            .connect(convolverNode.current)
-            .connect(analyzer.current);
+    const getCurrentTime = () => {
+        return props.getAudioCtxHandler().currentTime;
     }
 
-    const disconnectReverbNode = () => {
-        highShelfFilterNode.current.disconnect({output: convolverNode.current});
-        convolverNode.current.disconnect({output: analyzer.current});
-        highShelfFilterNode.current.connect(analyzer.current);
-        convolverNode.current = null;
+    const getCurrentTimeOffSet = () => {
+        return props.getMasterTimeOffsetHandler();
+    }
+
+    const getAudioBufferDuration = () => {
+        return audioBuffer.current.duration;
     }
 
     const changeVolumeValue = (newVolume) => {
@@ -229,20 +201,48 @@ export default function PlayerBar(props) {
         highShelfFilterNode.current.gain.value = newGain;
     }
 
-    const getCurrentTime = () => {
-        return props.getAudioCtxHandler().currentTime;
+    const changeReverb = (newReverb) => {
+        let arrayBuffer;
+        switch (newReverb) {
+            case "Simple":
+                arrayBuffer = null;
+                break;
+            case "Telephone":
+                arrayBuffer = props.getTelphoneIRBufferHandler();
+                break;
+            case "Spring":
+                arrayBuffer = props.getSpringIRBufferHandler();
+                break;
+            case "BrightHall":
+                arrayBuffer = props.getBrightHallIRBufferHandler();
+                break;
+            case "Echo":
+                arrayBuffer = props.getEchoIRBufferHandler();
+                break;
+            default:
+                disconnectReverbNode();
+                return;
+        }
+        createReverbNodeFromArrayBufferAndInsert(arrayBuffer)
     }
 
-    const getCurrentTimeOffSet = () => {
-        return props.getMasterTimeOffsetHandler();
+    const createReverbNodeFromArrayBufferAndInsert = (arrayBuffer) => {
+        convolverNode.current = setupConvolverNode(props.getAudioCtxHandler(), arrayBuffer);
+        connectReverbNode();
     }
 
-    const getAudioBufferDuration = () => {
-        return audioBuffer.current.duration;
+    const connectReverbNode = () => {
+        highShelfFilterNode.current.disconnect({output: analyzer.current});
+        highShelfFilterNode.current
+            .connect(convolverNode.current)
+            .connect(analyzer.current);
     }
 
-    const shouldDrawCursor = () => {
-        return startTime.current <= props.getAudioCtxHandler().currentTime;
+    const disconnectReverbNode = () => {
+        highShelfFilterNode.current.disconnect({output: convolverNode.current});
+        convolverNode.current.disconnect({output: analyzer.current});
+        highShelfFilterNode.current.connect(analyzer.current);
+        convolverNode.current = null;
     }
 
     const getAnalyzerNode = () => {
@@ -254,14 +254,14 @@ export default function PlayerBar(props) {
     }
 
     const handleSelectedOptionChange = (event) => {
-        selectedOption.current  = event.target.value;
+        selectedOption.current = event.target.value;
     };
 
     const getSelectedOption = () => {
         return selectedOption.current;
     }
 
-
+    const channelData = useRef(null);
 
     return (
         <div className="grid grid-cols-4">
@@ -269,11 +269,13 @@ export default function PlayerBar(props) {
                 <div className="flex justify-center">
                     <div className="flex flex-col gap-4">
                         <label id="import" className="h-auto btn btn-info" htmlFor={`file-input-${props.id}`}>
-                            <input id={`file-input-${props.id}`} type="file" style={{ display: "none" }} onChange={(e) => handleSourceFileChange(e.target.files)}/>
-                            <FolderPlusIcon className="h-6 w-6" />
+                            <input id={`file-input-${props.id}`} type="file" style={{display: "none"}}
+                                   onChange={(e) => handleSourceFileChange(e.target.files)}/>
+                            <FolderPlusIcon className="h-6 w-6"/>
                         </label>
-                        <button id="delete" className={`h-auto btn ${fileSource ? "btn-error" : "btn-disabled"}`} onClick={handleDelete}>
-                            <TrashIcon className="h-6 w-6" />
+                        <button id="delete" className={`h-auto btn ${fileSource ? "btn-error" : "btn-disabled"}`}
+                                onClick={handleDelete}>
+                            <TrashIcon className="h-6 w-6"/>
                         </button>
                     </div>
                 </div>
@@ -284,7 +286,8 @@ export default function PlayerBar(props) {
                             <button id="play"
                                     className={`h-auto btn ${fileSource ? "btn-info" : "btn-disabled"}`}
                                     onClick={handleMuteSwitch}>
-                                {isMuted ? <SpeakerXMarkIcon className="h-6 w-6" /> : <SpeakerWaveIcon className="h-6 w-6" />}
+                                {isMuted ? <SpeakerXMarkIcon className="h-6 w-6"/> :
+                                    <SpeakerWaveIcon className="h-6 w-6"/>}
                             </button>
                         </div>
                     </div>
@@ -294,19 +297,22 @@ export default function PlayerBar(props) {
                 </div>
                 <div className="col-span-4 flex justify-center flex-col gap-4">
                     <div className="flex justify-center">
-                        <WaveformCanvas isPlaying={props.isPlaying}
-                                        shouldDrawCursor={shouldDrawCursor}
-                                        getCurrentTime={getCurrentTime}
-                                        getTimeOffSet={getCurrentTimeOffSet}
-                                        getMaxDuration={getAudioBufferDuration}
-                                        ref={waveformCanvasRef}/>
+                        <WaveformCanvas
+                            shouldDrawCursor={shouldDrawCursor}
+                            getTrimmedChannelData={getChannelData}
+                            getCurrentTime={getCurrentTime}
+                            getTimeOffSet={getCurrentTimeOffSet}
+                            getMaxDuration={getAudioBufferDuration}/>
                     </div>
                     <div className="flex justify-center">
                         <EqualizerCanvas getAnalyzer={getAnalyzerNode}
                                          getFrameFrequencyData={getByteFrequencyData}
-                                         getLowFrequency={getLowShelfFrequency} getLowGain={getLowShelfGain} setLowGain={setLowShelfGain}
-                                         getPeakingFrequency={getPeakingFrequency} getPeakingGain={getPeakingGain} setPeakingGain={setPeakingGain}
-                                         getHighFrequency={getHighShelfFrequency} getHighGain={getHighShelfGain} setHighGain={setHighShelfGain}/>
+                                         getLowFrequency={getLowShelfFrequency} getLowGain={getLowShelfGain}
+                                         setLowGain={setLowShelfGain}
+                                         getPeakingFrequency={getPeakingFrequency} getPeakingGain={getPeakingGain}
+                                         setPeakingGain={setPeakingGain}
+                                         getHighFrequency={getHighShelfFrequency} getHighGain={getHighShelfGain}
+                                         setHighGain={setHighShelfGain}/>
                     </div>
                 </div>
                 <div className="flex flex-col justify-center ">
